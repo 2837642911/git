@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="Theme.Material3.Light.NoActionBar">
+    <!-- 将主色调改为蓝色 -->
+    <item name="colorPrimary">@color/blue_500</item>
+    <item name="colorPrimaryVariant">@color/blue_700</item>
+    <item name="colorOnPrimary">@color/white</item>
+        <item name="cornerSize">50%</item>
+        <!-- 其他颜色配置保持不变 -->
+    <item name="colorSecondary">@color/blue_200</item>
+    <item name="colorOnBackground">@color/white</item>
+
+    <!-- ... -->
+</style>
+
+</resources>

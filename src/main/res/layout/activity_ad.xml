@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000">
+
+    <!-- 轮播图图片 - 占满全屏 -->
+    <ImageView
+        android:id="@+id/ad_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:contentDescription="广告图片" />
+
+    <!-- 右上角倒计时 -->
+    <TextView
+        android:id="@+id/countdown_text"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="24dp"
+        android:gravity="center"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:text="5"/>
+
+    <!-- 底部跳过按钮 -->
+    <Button
+        android:id="@+id/skip_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="50dp"
+        android:text="立即体验"
+        android:background="#99000000"
+        android:textColor="#FFFFFF"
+        android:padding="16dp"
+        android:textAllCaps="false"/>
+
+</RelativeLayout>

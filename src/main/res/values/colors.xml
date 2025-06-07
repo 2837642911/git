@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 蓝色主色调 (Material Design 推荐的蓝色 #1976D2) -->
+    <color name="blue_500">#1976D2</color>
+    <color name="blue_700">#0D47A1</color>
+    <color name="blue_200">#BBDEFB</color>
+
+    <!-- 其他颜色保持不变 -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="light_gray">#F5F5F5</color>  <!-- 浅灰色 -->
+    <color name="gray_300">#E0E0E0</color>    <!-- 边框颜色 -->
+</resources>
