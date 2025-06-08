@@ -71,6 +71,7 @@
 
             <!-- 新闻记录 -->
             <LinearLayout
+                android:id="@+id/layout_record"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:gravity="center_vertical"
@@ -113,6 +114,7 @@
 
                 <TextView
                     android:layout_width="0dp"
+                    android:id="@+id/layout_profile"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_weight="1"
@@ -148,6 +150,36 @@
                     android:layout_marginStart="16dp"
                     android:layout_weight="1"
                     android:text="版本更新"
+                    android:textColor="#222222"
+                    android:textSize="16sp" />
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/baseline_chevron_right_24"
+                    app:tint="#BBBBBB" />
+            </LinearLayout>
+            <!-- 退出登录 -->
+            <LinearLayout
+                android:id="@+id/layout_loginout"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/baseline_logout_24"
+                    app:tint="#222222" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:text="退出登录"
                     android:textColor="#222222"
                     android:textSize="16sp" />
 

@@ -1,6 +1,5 @@
 package com.gxuwz.app.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -8,8 +7,12 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.bumptech.glide.Glide;
 import com.gxuwz.app.R;
+import com.gxuwz.app.utils.SessionManager;
 
 public class AdActivity extends AppCompatActivity {
 
@@ -44,6 +47,35 @@ public class AdActivity extends AppCompatActivity {
         countdownText = findViewById(R.id.countdown_text);
         skipButton = findViewById(R.id.skip_button);
 
+
+        // 检查用户是否已登录
+        if (isUserLoggedIn()) {
+            // 已登录，直接跳转到MainActivity
+            goToMainActivity();
+            return; // 终止当前Activity的初始化
+        }
+
+
+        initAdContent();
+    }
+
+
+    private void goToMainActivity() {
+        // 停止所有任务
+        stopAllHandlers();
+
+        // 跳转到主页面
+        startActivity(new Intent(this, MainActivity.class));
+        finish();
+    }
+
+    private boolean isUserLoggedIn() {
+        // 获取userId，如果存在则表示已登录
+        int userId = SessionManager.getInstance(this).getUserId();
+        return userId != -1; // 根据SessionManager的实现，-1表示未登录
+    }
+
+    private void initAdContent() {
         // 初始化显示第一张图片
         showImage(currentAdIndex);
 
@@ -56,7 +88,6 @@ public class AdActivity extends AppCompatActivity {
         // 跳过按钮事件
         skipButton.setOnClickListener(v -> goToLogin());
     }
-
     private void showImage(int index) {
         // 使用Glide加载本地图片（确保图片占满全屏）
         Glide.with(this)
@@ -96,8 +127,7 @@ public class AdActivity extends AppCompatActivity {
 
     private void goToLogin() {
         // 停止所有任务
-        adHandler.removeCallbacksAndMessages(null);
-        countdownHandler.removeCallbacksAndMessages(null);
+        stopAllHandlers();
 
         // 跳转到登录页面
         startActivity(new Intent(this, LoginActivity.class));
@@ -107,6 +137,9 @@ public class AdActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+       stopAllHandlers();
+    }
+    private void stopAllHandlers() {
         adHandler.removeCallbacksAndMessages(null);
         countdownHandler.removeCallbacksAndMessages(null);
     }

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,12 +16,15 @@ import com.gxuwz.app.R;
 import com.gxuwz.app.dao.UserDao;
 import com.gxuwz.app.db.AppDatabase;
 import com.gxuwz.app.model.pojo.User;
+import com.gxuwz.app.utils.SessionManager;
 
 public class LoginActivity extends AppCompatActivity {
 
     private EditText etAccount, etPassword, etCode;
     private Button btnSendCode, btnLogin;
     private CountDownTimer countDownTimer;
+    private static final String TAG = "LoginActivity"; // 添加 TAG 定义
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +115,10 @@ public class LoginActivity extends AppCompatActivity {
         // 登录成功
         Toast.makeText(this, "登录成功", Toast.LENGTH_SHORT).show();
         // TODO: 跳转主页或保存登录状态
+       SessionManager.getInstance(this).saveLoginState(user);
+        // 立即验证是否保存成功（建议在主线程执行）
+        boolean isLoggedIn = SessionManager.getInstance(this).isLoggedIn();
+        Log.d(TAG, "login: isLoggedIn = " + isLoggedIn); // 输出实际状态值
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(intent);
         finish();

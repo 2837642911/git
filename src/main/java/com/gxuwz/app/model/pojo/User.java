@@ -6,9 +6,12 @@ import androidx.room.PrimaryKey;
 @Entity(tableName = "user")
 public class User {
     @PrimaryKey(autoGenerate = true)
-    public int id;
+    public int userId;
 
     public String phone;
+
+
+    public String userName;
     public String password;
 
     public User(String phone, String password) {
@@ -16,8 +19,25 @@ public class User {
         this.password = password;
     }
 
+
+    public User(String userName, String password, String phone){
+        this.phone = phone;
+        this.password = password;
+        this.userName=userName;
+    }
+
     public User() {
     }
+
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId){
+        this.userId=userId;
+    }
+
 
     public String getPhone() {
         return phone;
@@ -26,7 +46,13 @@ public class User {
     public void setPhone(String phone) {
         this.phone = phone;
     }
+    public String getUserName() {
+        return userName;
+    }
 
+    public void setUserName(String phone) {
+        this.userName= userName;
+    }
     public String getPassword() {
         return password;
     }

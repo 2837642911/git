@@ -136,8 +136,10 @@ public class NewsDetailFragment extends Fragment {
                             // 如果有新的图片，更新图片
                             if (detail.getThumbnail_pic_s() != null && !detail.getThumbnail_pic_s().isEmpty()) {
                                 Glide.with(requireContext())
+                                        //为了方便只显示一张
                                     .load(detail.getThumbnail_pic_s())
-                                    .into(ivNews);
+
+                                        .into(ivNews);
                             }
                         }
                         // 显示内容
@@ -190,5 +192,29 @@ public class NewsDetailFragment extends Fragment {
         tvTime = null;
         ivNews = null;
         tvContent = null;
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        // 每次可见时都获取最新的news
+        if (getActivity() instanceof MainActivity) {
+            news = ((MainActivity) getActivity()).getCurrentNewsItem();
+            // 刷新UI
+            updateNewsUI();
+        }
+    }
+
+    private void updateNewsUI() {
+        if (news != null && tvTitle != null) {
+            tvTitle.setText(news.getTitle());
+            tvSource.setText(news.getAuthor_name());
+            tvTime.setText(news.getDate());
+            if (news.getThumbnail_pic_s() != null && !news.getThumbnail_pic_s().isEmpty()) {
+                Glide.with(this)
+                        .load(news.getThumbnail_pic_s())
+                        .into(ivNews);
+            }
+            loadNewsDetail();
+        }
     }
 }

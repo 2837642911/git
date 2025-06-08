@@ -6,6 +6,7 @@ import static com.gxuwz.app.fragment.FragmentConstants.MePositionGroup;
 import static com.gxuwz.app.fragment.FragmentConstants.NUM_PAGES;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.RadioGroup;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +20,9 @@ import com.gxuwz.app.fragment.FragmentConstants;
 import com.gxuwz.app.fragment.HomeFragment;
 import com.gxuwz.app.fragment.MeFragment;
 import com.gxuwz.app.fragment.NewsDetailFragment;
+import com.gxuwz.app.fragment.NewsProfileFragment;
+import com.gxuwz.app.fragment.SettingFragment;
+import com.gxuwz.app.fragment.UpdateFragment;
 import com.gxuwz.app.fragment.VersionFragment;
 import com.gxuwz.app.model.network.NewsItem;
 
@@ -37,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         viewPager = findViewById(R.id.viewPager);
         rg_bottom = findViewById(R.id.rg_bottom);
         viewPager.setAdapter(new PagerAdapter(this));
-
+        viewPager.setOffscreenPageLimit(1);
         rg_bottom.setOnCheckedChangeListener((radioGroup, i) -> {
             if (i == R.id.rb_home) {
                 viewPager.setCurrentItem(FragmentConstants.HomeFragment);
@@ -50,16 +54,36 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                if (position <=HomePositionGroup) {
+                updateUIByPosition(position);
+            }
+        });
+
+
+    }
+    private void updateUIByPosition(int position){
+
+        View flTopBar = findViewById(R.id.fl_top_bar);
+        // 控制底部栏和顶部栏的显示/隐藏
+        if (position == FragmentConstants.NewsDetailFragment) {
+            if ( rg_bottom != null)  rg_bottom.setVisibility(View.GONE);
+            if (flTopBar != null) flTopBar.setVisibility(View.GONE);
+        } else {
+            if ( rg_bottom != null)  rg_bottom.setVisibility(View.VISIBLE);
+            if (flTopBar != null) flTopBar.setVisibility(View.VISIBLE);
+
+            // 根据position设置底部导航栏选中项
+            if ( rg_bottom != null) {
+                if (position < HomePositionGroup) {
                     rg_bottom.check(R.id.rb_home);
-                } else if (position <=MePositionGroup) {
+                } else if (position < MePositionGroup) {
                     rg_bottom.check(R.id.rb_me);
                 } else {
                     rg_bottom.clearCheck(); // 版本页时底部栏不高亮
                 }
             }
-        });
+        }
     }
+
 
     public void setCurrentNewsItem(NewsItem item) {
         this.currentNewsItem = item;
@@ -94,7 +118,15 @@ public class MainActivity extends AppCompatActivity {
                 case FragmentConstants.VersionFragment:
                     fragment = new VersionFragment();
                     break;
-
+                    case FragmentConstants.ProfileRecordFragment:
+                    fragment = new NewsProfileFragment();
+                    break;
+                    case FragmentConstants.SettingFragment:
+                    fragment = new SettingFragment();
+                    break;
+                    case FragmentConstants.UpdateFragment:
+                        fragment = new UpdateFragment();
+                        break;
                 default:
                     fragment = new HomeFragment();
                     break;

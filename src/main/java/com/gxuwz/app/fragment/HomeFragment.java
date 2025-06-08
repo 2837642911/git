@@ -20,9 +20,14 @@ import com.gxuwz.app.R;
 import com.gxuwz.app.activity.MainActivity;
 import com.gxuwz.app.adapter.NewsAdapter;
 import com.gxuwz.app.api.NewsApi;
+import com.gxuwz.app.dao.NewsHistoryDao;
+import com.gxuwz.app.db.AppDatabase;
+import com.gxuwz.app.model.network.NewsItem;
 import com.gxuwz.app.model.network.NewsResponse;
+import com.gxuwz.app.model.pojo.NewsHistory;
 import com.gxuwz.app.network.ResponseHandler;
 import com.gxuwz.app.network.RetrofitClient;
+import com.gxuwz.app.utils.SessionManager;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -113,6 +118,12 @@ public class HomeFragment extends Fragment {
             if (getActivity() instanceof MainActivity) {
                 MainActivity mainActivity = (MainActivity) getActivity();
                 mainActivity.setCurrentNewsItem(newsItem);
+
+
+                // 保存新闻到历史记录（异步操作）
+                saveNewsToHistory(newsItem);
+
+
                 ViewPager2 viewPager = mainActivity.findViewById(R.id.viewPager);
                 if (viewPager != null) {
                     viewPager.setCurrentItem(FragmentConstants.NewsDetailFragment, true); // 切换到详情页
@@ -197,4 +208,45 @@ public class HomeFragment extends Fragment {
         Log.d(TAG, "onDestroy: Fragment being destroyed");
         super.onDestroy();
     }
-}
+
+
+
+
+    private void saveNewsToHistory(NewsItem newsItem) {
+        // 获取当前用户ID（从SessionManager或其他地方获取）
+        int userId = SessionManager.getInstance(requireContext()).getUserId();
+
+        // 创建NewsHistory对象
+        NewsHistory newsHistory = new NewsHistory(
+                userId,
+                newsItem.getUniquekey(), // 假设NewsItem有getUniquekey()方法
+                newsItem.getTitle(),
+                newsItem.getCategory(),
+                newsItem.getThumbnail_pic_s(),
+                newsItem.getUrl(),
+                newsItem.getAuthor_name(),
+                newsItem.getDate()
+        );
+
+
+                    AppDatabase db = AppDatabase.getInstance(requireContext());
+                    NewsHistoryDao dao = db.newsHistoryDao();
+
+                    // 检查新闻是否已存在（避免重复记录）
+                    NewsHistory existingNews = dao.getNewsHistory(
+                            newsItem.getUniquekey(),
+                            userId
+                    );
+
+                    if (existingNews == null) {
+                        // 新闻不存在，插入新记录
+                        dao.insert(newsHistory);
+                        Log.d(TAG, "saveNewsToHistory: 新闻已保存到历史记录");
+                    } else {
+                        // 新闻已存在，更新浏览时间
+                        existingNews.setViewTime(System.currentTimeMillis());
+                        dao.update(existingNews);
+                        Log.d(TAG, "saveNewsToHistory: 新闻已存在，更新浏览时间");
+                    }
+                }
+    }

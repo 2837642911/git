@@ -50,13 +50,56 @@ public class MeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_me, container, false);
+        setupVersionClick(view);
+        setupLogoutClick(view);
+        setupRecordClick(view);
+        setupProfileClick(view);
+        return view;
+    }
+
+    private void setupVersionClick(View view) {
         View versionLayout = view.findViewById(R.id.layout_version);
         versionLayout.setOnClickListener(v -> {
             ViewPager2 viewPager = getActivity().findViewById(R.id.viewPager);
             if (viewPager != null) {
-                viewPager.setCurrentItem(FragmentConstants.VersionFragment, true); // 切换到VersionFragment
+                viewPager.setCurrentItem(FragmentConstants.VersionFragment, true);
             }
         });
-        return view;
     }
+
+    private void setupLogoutClick(View view) {
+        View logoutLayout = view.findViewById(R.id.layout_loginout);
+        logoutLayout.setOnClickListener(v -> {
+            com.gxuwz.app.utils.SessionManager.getInstance(requireContext()).clearLoginState();
+            requireActivity().finish();
+            startActivity(new android.content.Intent(requireContext(), com.gxuwz.app.activity.LoginActivity.class));
+        });
+    }
+
+    private void setupProfileClick(View view) {
+        View profileLayout = view.findViewById(R.id.layout_profile);
+        if (profileLayout != null) {
+            profileLayout.setOnClickListener(v -> {
+                ViewPager2 viewPager = getActivity().findViewById(R.id.viewPager);
+                if (viewPager != null) {
+                    // 跳转到个人资料Fragment
+                    viewPager.setCurrentItem(FragmentConstants.SettingFragment, true);
+                }
+            });
+        }
+    }
+
+    private void setupRecordClick(View view) {
+        View recordLayout = view.findViewById(R.id.layout_record); // 假设你的新闻记录项id为layout_record
+        if (recordLayout != null) {
+            recordLayout.setOnClickListener(v -> {
+                ViewPager2 viewPager = getActivity().findViewById(R.id.viewPager);
+                if (viewPager != null) {
+                    // 跳转到历史记录Fragment
+                    viewPager.setCurrentItem(FragmentConstants.ProfileRecordFragment, true);
+                }
+            });
+        }
+    }
+
 }
