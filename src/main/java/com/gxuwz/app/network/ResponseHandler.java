@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.gxuwz.app.model.vo.BaseResponse;
+import com.gxuwz.app.model.IApiResponse;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -15,49 +15,58 @@ import retrofit2.Response;
  */
 public class ResponseHandler {
     private static final String TAG = "ResponseHandler";
-    
+
     /**
-     * 处理响应结果
+     * 处理响应结果（支持所有实现了IApiResponse的响应类）
      * @param context 上下文
      * @param call 网络请求
      * @param callback 回调接口
      * @param <T> 响应数据类型
      */
-    public static <T extends BaseResponse<?>> void handleResponse(Context context, Call<T> call, ResponseCallback<T> callback) {
+    public static <T extends IApiResponse> void handleResponse(Context context, Call<T> call, ResponseCallback<T> callback) {
         call.enqueue(new Callback<T>() {
             @Override
             public void onResponse(Call<T> call, Response<T> response) {
                 Log.d(TAG, "onResponse: Response code = " + response.code());
-                if (response.isSuccessful() && response.body() != null) {
-                    T baseResponse = response.body();
-                    Log.d(TAG, "onResponse: Response body = " + baseResponse);
-                    Log.d(TAG, "onResponse: isSuccess = " + baseResponse.isSuccess());
-                    Log.d(TAG, "onResponse: error message = " + baseResponse.getErrorMessage());
-                    
-                    if (baseResponse.isSuccess()) {
-                        callback.onSuccess(baseResponse);
-                    } else {
-                        String errorMsg = baseResponse.getErrorMessage();
-                        Log.e(TAG, "onResponse: API error - " + errorMsg);
-                        Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show();
-                        callback.onError(errorMsg);
-                    }
+                if (!response.isSuccessful() || response.body() == null) {
+                    handleFailure(context, "请求失败: " + response.code(), callback);
+                    return;
+                }
+                T apiResponse = response.body();
+                Log.d(TAG, "onResponse: isSuccess = " + apiResponse.isSuccess());
+                Log.d(TAG, "onResponse: error message = " + apiResponse.getErrorMessage());
+                if (apiResponse.isSuccess()) {
+                    handleSuccess(apiResponse, callback);
                 } else {
-                    String errorMsg = "请求失败: " + response.code();
-                    Log.e(TAG, "onResponse: " + errorMsg);
-                    Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show();
-                    callback.onError(errorMsg);
+                    handleFailure(context, apiResponse.getErrorMessage(), callback);
                 }
             }
 
             @Override
             public void onFailure(Call<T> call, Throwable t) {
-                String errorMsg = "网络错误: " + t.getMessage();
-                Log.e(TAG, "onFailure: " + errorMsg, t);
-                Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show();
-                callback.onError(errorMsg);
+                handleFailure(context, "网络错误: " + t.getMessage(), callback);
             }
         });
+    }
+
+    private static <T> void handleSuccess(T response, ResponseCallback<T> callback) {
+        if (callback != null) {
+            callback.onSuccess(response);
+        }
+    }
+
+    private static void handleFailure(Context context, String errorMsg, ResponseCallback<?> callback) {
+        Log.e(TAG, "onFailure: " + errorMsg);
+        showToast(context, errorMsg);
+        if (callback != null) {
+            callback.onError(errorMsg);
+        }
+    }
+
+    private static void showToast(Context context, String msg) {
+        if (context != null && msg != null) {
+            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
@@ -77,4 +86,4 @@ public class ResponseHandler {
          */
         void onError(String errorMsg);
     }
-} 
+}

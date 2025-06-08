@@ -25,20 +25,26 @@
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/fl_top_bar">
+        android:layout_below="@id/fl_top_bar"
+        android:layout_above="@id/rg_bottom">
     </androidx.viewpager2.widget.ViewPager2>
-    <!--底部导航栏-->
-    <RadioGroup
-        android:layout_alignParentBottom="true"
-        android:orientation="horizontal"
-        android:id="@+id/rg_bottom"
-        android:layout_marginBottom="10dp"
+    <FrameLayout
+        android:id="@+id/fl_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:layout_below="@id/fl_top_bar"
+        android:layout_above="@id/rg_bottom"
+        android:visibility="gone" />
+    <RadioGroup
+        android:id="@+id/rg_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
         <RadioButton
             android:id="@+id/rb_home"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
             android:button="@null"
@@ -49,8 +55,8 @@
 
         <RadioButton
             android:id="@+id/rb_me"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:button="@null"
             android:gravity="center"

@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.gxuwz.app.R;
-import com.gxuwz.app.model.bean.NewsItem;
+import com.gxuwz.app.model.network.NewsItem;
 
 import java.util.List;
 

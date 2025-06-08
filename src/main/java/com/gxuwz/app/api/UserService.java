@@ -1,7 +1,7 @@
 package com.gxuwz.app.api;
 
 
-import com.gxuwz.app.model.bean.User;
+import com.gxuwz.app.model.pojo.User;
 import com.gxuwz.app.model.vo.UserResponse;
 
 import retrofit2.Call;

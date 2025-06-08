@@ -3,23 +3,26 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F8F8F8"
     tools:context=".fragment.VersionFragment">
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
 
-    <!-- 主容器 -->
+    <!-- 转圈加载动画，默认隐藏 -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center"
+        android:indeterminate="true"
+        android:visibility="gone" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="1dp"
-        android:layout_marginTop="20dp">
+        android:padding="16dp">
 
         <!-- 标题栏 -->
         <TextView
@@ -30,76 +33,101 @@
             android:text="版本更新"
             android:textAlignment="center"
             android:textColor="#333333"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
-        <!-- 内容区域 -->
-        <LinearLayout
+        <!-- 版本信息卡片 -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="15dp">
+            android:layout_marginTop="32dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            android:background="#FFF">
 
-            <!-- 当前版本 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingBottom="10dp"
-                android:weightSum="2">
+                android:orientation="vertical"
+                android:padding="24dp">
 
+                <!-- 当前版本 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingBottom="8dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/baseline_change_circle_24"
+                        app:tint="#2196F3"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="当前版本"
+                        android:textColor="#666666"
+                        android:textSize="15sp"/>
+
+                    <TextView
+                        android:id="@+id/tv_current_version"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="V1.0.0"
+                        android:textColor="#222222"
+                        android:textStyle="bold"
+                        android:textSize="16sp"/>
+                </LinearLayout>
+
+                <!-- 最新版本 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingBottom="8dp">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/baseline_change_circle_24"
+                        app:tint="#4CAF50"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="最新版本"
+                        android:textColor="#666666"
+                        android:textSize="15sp"/>
+
+                    <TextView
+                        android:id="@+id/tv_latest_version"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:text="V1.0.0"
+                        android:textColor="#222222"
+                        android:textStyle="bold"
+                        android:textSize="16sp"/>
+                </LinearLayout>
+
+                <!-- 更新说明 -->
                 <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="24dp"
-                    android:layout_weight="1"
-                    android:text="当前版本"
-                    android:gravity="center_vertical|left"
-                    android:textColor="#666666" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="24dp"
-                    android:layout_weight="1"
-                    android:gravity="center_vertical|end"
-
-                    android:text="V8.8.8.8.8"
-                    android:textColor="#666666" />
+                    android:id="@+id/tv_update_desc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:lineSpacingMultiplier="1.6"
+                    android:text="没有版本更新"
+                    android:textColor="#666666"
+                    android:textSize="14sp"/>
             </LinearLayout>
-
-            <!-- 最新版本 -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingBottom="10dp"
-                android:weightSum="2">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="24dp"
-                    android:layout_weight="1"
-                    android:text="最新版本"
-                    android:gravity="center_vertical|left"
-                    android:textColor="#666666" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="24dp"
-                    android:layout_weight="1"
-                    android:gravity="center_vertical|end"
-                    android:text="V9.8.8.8.8"
-                    android:textColor="#666666" />
-            </LinearLayout>
-
-            <!-- 更新说明 -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                android:lineSpacingMultiplier="1.6"
-                android:text="没有版本更新"
-                android:textColor="#666666" />
-        </LinearLayout>
+        </androidx.cardview.widget.CardView>
     </LinearLayout>
-</LinearLayout>
 </FrameLayout>

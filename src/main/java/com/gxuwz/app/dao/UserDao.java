@@ -4,7 +4,7 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 
-import com.gxuwz.app.model.bean.User;
+import com.gxuwz.app.model.pojo.User;
 
 @Dao
 public interface UserDao {

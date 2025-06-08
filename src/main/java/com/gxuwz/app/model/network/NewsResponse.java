@@ -1,9 +1,10 @@
-package com.gxuwz.app.model.bean;
+package com.gxuwz.app.model.network;
 
-import com.gxuwz.app.model.vo.BaseResponse;
+import com.gxuwz.app.model.IApiResponse;
+
 import java.util.List;
 
-public class NewsResponse extends BaseResponse<NewsResponse.Result> {
+public class NewsResponse implements IApiResponse {
     private String reason;  // 聚合数据API的reason字段
     private int error_code; // 聚合数据API的error_code字段
     private Result result;  // 聚合数据API的result字段
@@ -24,19 +25,17 @@ public class NewsResponse extends BaseResponse<NewsResponse.Result> {
         this.error_code = error_code;
     }
 
-    @Override
-    public Result getData() {
-        return result;  // 重写getData方法，返回result字段
+    public Result getResult() {
+        return result;
     }
 
-    @Override
-    public void setData(Result data) {
-        this.result = data;  // 重写setData方法，设置result字段
+    public void setResult(Result result) {
+        this.result = result;
     }
 
     @Override
     public boolean isSuccess() {
-        return error_code == 0;  // 聚合数据API成功时error_code为0
+        return error_code == 0;
     }
 
     @Override
@@ -49,7 +48,7 @@ public class NewsResponse extends BaseResponse<NewsResponse.Result> {
 
     public static class Result {
         private String stat;
-        private List<NewsItem> data;
+        private List<com.gxuwz.app.model.network.NewsItem> data;
         private String page;
         private String pageSize;
 
@@ -61,11 +60,11 @@ public class NewsResponse extends BaseResponse<NewsResponse.Result> {
             this.stat = stat;
         }
 
-        public List<NewsItem> getData() {
+        public List<com.gxuwz.app.model.network.NewsItem> getData() {
             return data;
         }
 
-        public void setData(List<NewsItem> data) {
+        public void setData(List<com.gxuwz.app.model.network.NewsItem> data) {
             this.data = data;
         }
 

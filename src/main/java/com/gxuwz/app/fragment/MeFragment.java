@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.gxuwz.app.R;
 
@@ -48,7 +49,14 @@ public class MeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view =inflater.inflate(R.layout.fragment_me, container, false);
+        View view = inflater.inflate(R.layout.fragment_me, container, false);
+        View versionLayout = view.findViewById(R.id.layout_version);
+        versionLayout.setOnClickListener(v -> {
+            ViewPager2 viewPager = getActivity().findViewById(R.id.viewPager);
+            if (viewPager != null) {
+                viewPager.setCurrentItem(FragmentConstants.VersionFragment, true); // 切换到VersionFragment
+            }
+        });
         return view;
     }
 }

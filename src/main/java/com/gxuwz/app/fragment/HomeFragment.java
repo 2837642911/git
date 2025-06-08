@@ -1,5 +1,7 @@
 package com.gxuwz.app.fragment;
 
+import static com.gxuwz.app.network.WebAPI.API_KEY;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,11 +13,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.viewpager2.widget.ViewPager2;
 
+import com.google.android.material.tabs.TabLayout;
 import com.gxuwz.app.R;
+import com.gxuwz.app.activity.MainActivity;
 import com.gxuwz.app.adapter.NewsAdapter;
 import com.gxuwz.app.api.NewsApi;
-import com.gxuwz.app.model.bean.NewsResponse;
+import com.gxuwz.app.model.network.NewsResponse;
 import com.gxuwz.app.network.ResponseHandler;
 import com.gxuwz.app.network.RetrofitClient;
 
@@ -35,7 +40,7 @@ public class HomeFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private static final String API_KEY = "d08d5410e2b92d647a6b17978d0fd649";
+
     private static final int PAGE_SIZE = 15;
     private static final int IS_FILTER = 1;
 
@@ -45,6 +50,10 @@ public class HomeFragment extends Fragment {
     private NewsApi newsApi;
     private Random random = new Random();
     private Call<NewsResponse> currentCall;
+    private TabLayout tabLayout;
+    private String[] tabTypes = {"top", "guonei", "guoji"};
+    private String[] tabTitles = {"推荐", "国内", "国际"};
+    private String currentType = "top";
 
     public HomeFragment() {
         super();
@@ -79,57 +88,57 @@ public class HomeFragment extends Fragment {
                            @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView: Creating view");
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-        
+
+        tabLayout = view.findViewById(R.id.tab_layout);
+        for (String title : tabTitles) {
+            tabLayout.addTab(tabLayout.newTab().setText(title));
+        }
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                int pos = tab.getPosition();
+                currentType = tabTypes[pos];
+                loadNews(currentType);
+            }
+            @Override public void onTabUnselected(TabLayout.Tab tab) {}
+            @Override public void onTabReselected(TabLayout.Tab tab) {}
+        });
+
         recyclerView = view.findViewById(R.id.recycler_view_news);
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
-        
+
         // 初始化适配器
         newsAdapter = new NewsAdapter(new ArrayList<>(), newsItem -> {
             Log.d(TAG, "onItemClick: News item clicked: " + newsItem.getTitle());
-            // 点击新闻项时，切换到详情页
-            NewsDetailFragment detailFragment = NewsDetailFragment.newInstance(newsItem);
-            // 使用父容器作为目标容器
-            if (getActivity() != null) {
-                getActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.viewPager, detailFragment)
-                    .addToBackStack(null)
-                    .commit();
-                Log.d(TAG, "onItemClick: Fragment transaction committed");
-            } else {
-                Log.e(TAG, "onItemClick: Activity is null");
+            if (getActivity() instanceof MainActivity) {
+                MainActivity mainActivity = (MainActivity) getActivity();
+                mainActivity.setCurrentNewsItem(newsItem);
+                ViewPager2 viewPager = mainActivity.findViewById(R.id.viewPager);
+                if (viewPager != null) {
+                    viewPager.setCurrentItem(FragmentConstants.NewsDetailFragment, true); // 切换到详情页
+                }
             }
         });
         recyclerView.setAdapter(newsAdapter);
-        
+
         // 设置下拉刷新
-        swipeRefreshLayout.setOnRefreshListener(this::loadNews);
-        
+        swipeRefreshLayout.setOnRefreshListener(() -> loadNews(currentType));
+
         // 首次加载数据
         loadNews();
-        
+
         return view;
     }
 
-    private void loadNews() {
-        Log.d(TAG, "loadNews: Starting to load news");
-        if (swipeRefreshLayout != null) {
-            swipeRefreshLayout.setRefreshing(true);
-        }
-        
-        // 取消之前的请求
+    private void loadNews(String type) {
+        Log.d(TAG, "loadNews: type=" + type);
+        int page = random.nextInt(50) + 1;
         if (currentCall != null && !currentCall.isCanceled()) {
-            Log.d(TAG, "loadNews: Cancelling previous request");
             currentCall.cancel();
         }
-        
-        // 随机页码
-        int randomPage = random.nextInt(50) + 1;
-        Log.d(TAG, "loadNews: Loading page " + randomPage);
-        
-        // 加载推荐新闻
-        currentCall = newsApi.getNewsList(API_KEY, "top", randomPage, PAGE_SIZE, IS_FILTER);
-        ResponseHandler.handleResponse(requireContext(), 
+        swipeRefreshLayout.setRefreshing(true);
+        currentCall = newsApi.getNewsList(API_KEY, type, page, PAGE_SIZE, IS_FILTER);
+        ResponseHandler.handleResponse(requireContext(),
             currentCall,
             new ResponseHandler.ResponseCallback<NewsResponse>() {
                 @Override
@@ -139,7 +148,7 @@ public class HomeFragment extends Fragment {
                         Log.w(TAG, "onSuccess: Activity is null");
                         return;
                     }
-                    NewsResponse.Result result = response.getData();
+                    NewsResponse.Result result = response.getResult();
                     if (result != null && result.getData() != null) {
                         Log.d(TAG, "onSuccess: Updating adapter with " + result.getData().size() + " items");
                         newsAdapter.updateNewsList(result.getData());
@@ -163,6 +172,10 @@ public class HomeFragment extends Fragment {
                     }
                 }
             });
+    }
+
+    private void loadNews() {
+        loadNews(currentType);
     }
 
     @Override

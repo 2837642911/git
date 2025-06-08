@@ -6,7 +6,7 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
 import com.gxuwz.app.dao.UserDao;
-import com.gxuwz.app.model.bean.User;
+import com.gxuwz.app.model.pojo.User;
 
 @Database(entities = {User.class}, version = 1)
 public abstract class AppDatabase extends RoomDatabase {

@@ -1,4 +1,4 @@
-package com.gxuwz.app.model.bean;
+package com.gxuwz.app.model.network;
 
 import java.io.Serializable;
 

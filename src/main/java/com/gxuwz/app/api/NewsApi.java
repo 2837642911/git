@@ -1,7 +1,7 @@
 package com.gxuwz.app.api;
 
-import com.gxuwz.app.model.bean.NewsDetailResponse;
-import com.gxuwz.app.model.bean.NewsResponse;
+import com.gxuwz.app.model.network.NewsDetailResponse;
+import com.gxuwz.app.model.network.NewsResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

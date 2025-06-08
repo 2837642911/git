@@ -14,7 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.gxuwz.app.R;
 import com.gxuwz.app.dao.UserDao;
 import com.gxuwz.app.db.AppDatabase;
-import com.gxuwz.app.model.bean.User;
+import com.gxuwz.app.model.pojo.User;
 
 
 public class RegisterActivity extends AppCompatActivity {
