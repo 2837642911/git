@@ -6,9 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
-import androidx.viewpager2.widget.ViewPager2;
 
 import com.gxuwz.app.R;
+import com.gxuwz.app.activity.MainActivity;
 
 
 /**
@@ -60,9 +60,8 @@ public class MeFragment extends Fragment {
     private void setupVersionClick(View view) {
         View versionLayout = view.findViewById(R.id.layout_version);
         versionLayout.setOnClickListener(v -> {
-            ViewPager2 viewPager = getActivity().findViewById(R.id.viewPager);
-            if (viewPager != null) {
-                viewPager.setCurrentItem(FragmentConstants.VersionFragment, true);
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).replaceFragment(FragmentConstants.VersionFragment, true);
             }
         });
     }
@@ -80,23 +79,19 @@ public class MeFragment extends Fragment {
         View profileLayout = view.findViewById(R.id.layout_profile);
         if (profileLayout != null) {
             profileLayout.setOnClickListener(v -> {
-                ViewPager2 viewPager = getActivity().findViewById(R.id.viewPager);
-                if (viewPager != null) {
-                    // 跳转到个人资料Fragment
-                    viewPager.setCurrentItem(FragmentConstants.SettingFragment, true);
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).replaceFragment(FragmentConstants.SettingFragment, true);
                 }
             });
         }
     }
 
     private void setupRecordClick(View view) {
-        View recordLayout = view.findViewById(R.id.layout_record); // 假设你的新闻记录项id为layout_record
+        View recordLayout = view.findViewById(R.id.layout_record);
         if (recordLayout != null) {
             recordLayout.setOnClickListener(v -> {
-                ViewPager2 viewPager = getActivity().findViewById(R.id.viewPager);
-                if (viewPager != null) {
-                    // 跳转到历史记录Fragment
-                    viewPager.setCurrentItem(FragmentConstants.ProfileRecordFragment, true);
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).replaceFragment(FragmentConstants.ProfileRecordFragment, true);
                 }
             });
         }

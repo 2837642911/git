@@ -10,7 +10,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 import com.gxuwz.app.R;
@@ -99,10 +98,7 @@ public class NewsProfileFragment extends Fragment {
             if (getActivity() instanceof MainActivity) {
                 MainActivity mainActivity = (MainActivity) getActivity();
                 mainActivity.setCurrentNewsItem(newsItem);
-                ViewPager2 viewPager = mainActivity.findViewById(R.id.viewPager);
-                if (viewPager != null) {
-                    viewPager.setCurrentItem(FragmentConstants.NewsDetailFragment, true);
-                }
+                mainActivity.replaceFragment(FragmentConstants.NewsDetailFragment, true);
             }
         });
         recyclerView.setAdapter(newsAdapter);

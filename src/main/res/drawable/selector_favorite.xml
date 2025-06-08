@@ -6,5 +6,5 @@
 
     <!-- 默认状态：显示白色 -->
     <item
-        android:drawable="@drawable/baseline_grade_white"/>
+        android:drawable="@drawable/baseline_grade_white" android:state_selected="false"/>
 </selector>

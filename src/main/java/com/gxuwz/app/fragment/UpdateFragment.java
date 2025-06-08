@@ -1,6 +1,7 @@
 package com.gxuwz.app.fragment;
 
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,7 +24,7 @@ public class UpdateFragment extends Fragment {
 
     private EditText etAccount, etPassword, etRepeatPassword, etCode;
     private Button btnRegister, btnSendCode;
-
+    private CountDownTimer countDownTimer;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -39,6 +40,7 @@ public class UpdateFragment extends Fragment {
         btnSendCode.setOnClickListener(v -> {
             // TODO: 发送验证码逻辑
             Toast.makeText(requireContext(), "验证码已发送", Toast.LENGTH_SHORT).show();
+            startCountDown();
         });
 
         btnRegister.setOnClickListener(v -> {
@@ -85,5 +87,17 @@ public class UpdateFragment extends Fragment {
         });
 
         return view;
+    }
+    private void startCountDown() {
+        btnSendCode.setEnabled(false);
+        countDownTimer = new CountDownTimer(60000, 1000) {
+            public void onTick(long millisUntilFinished) {
+                btnSendCode.setText(millisUntilFinished / 1000 + "s");
+            }
+            public void onFinish() {
+                btnSendCode.setText("发送验证码");
+                btnSendCode.setEnabled(true);
+            }
+        }.start();
     }
 }

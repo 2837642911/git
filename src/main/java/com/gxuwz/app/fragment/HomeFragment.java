@@ -13,7 +13,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 import com.gxuwz.app.R;
@@ -118,16 +117,10 @@ public class HomeFragment extends Fragment {
             if (getActivity() instanceof MainActivity) {
                 MainActivity mainActivity = (MainActivity) getActivity();
                 mainActivity.setCurrentNewsItem(newsItem);
-
-
                 // 保存新闻到历史记录（异步操作）
                 saveNewsToHistory(newsItem);
-
-
-                ViewPager2 viewPager = mainActivity.findViewById(R.id.viewPager);
-                if (viewPager != null) {
-                    viewPager.setCurrentItem(FragmentConstants.NewsDetailFragment, true); // 切换到详情页
-                }
+                // 切换到详情页
+                mainActivity.replaceFragment(FragmentConstants.NewsDetailFragment, true);
             }
         });
         recyclerView.setAdapter(newsAdapter);

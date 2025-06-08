@@ -20,10 +20,14 @@ import com.google.gson.Gson;
 import com.gxuwz.app.R;
 import com.gxuwz.app.activity.MainActivity;
 import com.gxuwz.app.api.NewsApi;
+import com.gxuwz.app.dao.NewsHistoryDao;
+import com.gxuwz.app.db.AppDatabase;
 import com.gxuwz.app.model.network.NewsDetailResponse;
 import com.gxuwz.app.model.network.NewsItem;
+import com.gxuwz.app.model.pojo.NewsHistory;
 import com.gxuwz.app.network.ResponseHandler;
 import com.gxuwz.app.network.RetrofitClient;
+import com.gxuwz.app.utils.SessionManager;
 
 import retrofit2.Call;
 
@@ -37,7 +41,9 @@ public class NewsDetailFragment extends Fragment {
     private boolean hasRetried = false;
 
     private TextView tvTitle, tvSource, tvTime, tvContent;
-    private ImageView ivNews;
+    private ImageView ivNews, ivFavorite;
+    private TextView tvFavorite;
+    private boolean isFavorite = false;
 
     public static NewsDetailFragment newInstance(NewsItem news) {
         NewsDetailFragment fragment = new NewsDetailFragment();
@@ -74,6 +80,8 @@ public class NewsDetailFragment extends Fragment {
         tvTime = view.findViewById(R.id.tv_time);
         ivNews = view.findViewById(R.id.iv_news);
         tvContent = view.findViewById(R.id.tv_content);
+        ivFavorite = view.findViewById(R.id.iv_favorite);
+        tvFavorite = view.findViewById(R.id.tv_favorite_count);
 
         if (news != null) {
             // 先显示基本信息
@@ -86,6 +94,13 @@ public class NewsDetailFragment extends Fragment {
                     .load(news.getThumbnail_pic_s())
                     .into(ivNews);
             }
+
+            // 查询收藏状态并刷新UI
+            checkFavoriteStatus();
+
+            ivFavorite.setOnClickListener(v -> {
+                toggleFavorite();
+            });
 
             // 加载详细内容
             loadNewsDetail();
@@ -216,5 +231,44 @@ public class NewsDetailFragment extends Fragment {
             }
             loadNewsDetail();
         }
+    }
+
+    private void checkFavoriteStatus() {
+        new Thread(() -> {
+            int userId = SessionManager.getInstance(requireContext()).getUserId();
+            NewsHistoryDao dao = AppDatabase.getInstance(requireContext()).newsHistoryDao();
+            NewsHistory history = dao.getNewsHistory(news.getUniquekey(), userId);
+            isFavorite = history != null && history.isFavorite();
+            requireActivity().runOnUiThread(() -> updateFavoriteUI());
+        }).start();
+    }
+
+    private void updateFavoriteUI() {
+        ivFavorite.setSelected(isFavorite);
+        tvFavorite.setText(isFavorite ? "已收藏" : "收藏");
+    }
+
+    private void toggleFavorite() {
+        new Thread(() -> {
+            int userId = SessionManager.getInstance(requireContext()).getUserId();
+            NewsHistoryDao dao = AppDatabase.getInstance(requireContext()).newsHistoryDao();
+            NewsHistory history = dao.getNewsHistory(news.getUniquekey(), userId);
+            if (history == null) {
+                // 没有历史，插入并收藏
+                history = new NewsHistory(userId, news.getUniquekey(), news.getTitle(), news.getCategory(),
+                        news.getThumbnail_pic_s(), news.getUrl(), news.getAuthor_name(), news.getDate());
+                history.setFavorite(true);
+                dao.insert(history);
+                isFavorite = true;
+            } else {
+                // 已有历史，切换收藏状态
+                isFavorite = !history.isFavorite();
+                dao.updateFavorite(news.getUniquekey(), userId, isFavorite);
+            }
+            requireActivity().runOnUiThread(() -> {
+                updateFavoriteUI();
+                Toast.makeText(requireContext(), isFavorite ? "已收藏" : "已取消收藏", Toast.LENGTH_SHORT).show();
+            });
+        }).start();
     }
 }

@@ -12,9 +12,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.viewpager2.widget.ViewPager2;
 
 import com.gxuwz.app.R;
+import com.gxuwz.app.activity.MainActivity;
 import com.gxuwz.app.dao.UserDao;
 import com.gxuwz.app.db.AppDatabase;
 import com.gxuwz.app.model.pojo.User;
@@ -57,9 +57,8 @@ public class SettingFragment extends Fragment {
                     requireActivity().runOnUiThread(() -> {
                         Toast.makeText(requireContext(), "保存成功", Toast.LENGTH_SHORT).show();
                         // 跳转回用户界面
-                        ViewPager2 viewPager = requireActivity().findViewById(R.id.viewPager);
-                        if (viewPager != null) {
-                            viewPager.setCurrentItem(FragmentConstants.MeFragment, true);
+                        if (getActivity() instanceof MainActivity) {
+                            ((MainActivity) getActivity()).replaceFragment(FragmentConstants.MeFragment, false);
                         }
                     });
                 }).start();
@@ -69,9 +68,8 @@ public class SettingFragment extends Fragment {
         // 手机号和密码修改跳转
         View updateLayout = view.findViewById(R.id.layout_update);
         updateLayout.setOnClickListener(v -> {
-            ViewPager2 viewPager = requireActivity().findViewById(R.id.viewPager);
-            if (viewPager != null) {
-                viewPager.setCurrentItem(FragmentConstants.UpdateFragment, true);
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).replaceFragment(FragmentConstants.UpdateFragment, true);
             }
         });
 
