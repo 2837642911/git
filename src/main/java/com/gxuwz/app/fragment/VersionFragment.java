@@ -1,5 +1,9 @@
 package com.gxuwz.app.fragment;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -8,13 +12,18 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
-import com.gxuwz.app.R;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.gxuwz.app.R;
+import com.gxuwz.app.network.WebAPI;
+import com.gxuwz.app.service.DownloadApkService;
+
 
 
 /**
@@ -26,6 +35,10 @@ public class VersionFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
     private String mParam1;
     private String mParam2;
+
+    private ProgressBar progressBar;
+    private ProgressBar progressDownload;
+    private BroadcastReceiver progressReceiver;
 
     public VersionFragment() {
         super();
@@ -56,10 +69,12 @@ public class VersionFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_version, container, false);
-        ProgressBar progressBar = view.findViewById(R.id.progressBar); // 美化版本号显示
+        progressBar = view.findViewById(R.id.progressBar); // 美化版本号显示
         TextView tvCurrent = view.findViewById(R.id.tv_current_version);
         TextView tvLatest = view.findViewById(R.id.tv_latest_version);
         TextView tvDesc = view.findViewById(R.id.tv_update_desc);
+        Button btnDownload = view.findViewById(R.id.btn_download_apk);
+        progressDownload = view.findViewById(R.id.progress_download);
 
         String versionName = "V1.0.0";
         try {
@@ -85,6 +100,38 @@ public class VersionFragment extends Fragment {
                     .setPositiveButton("确定", null)
                     .show();
         }, 1500);
+
+        // 下载APK按钮逻辑
+        btnDownload.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), DownloadApkService.class);
+            intent.setAction(DownloadApkService.ACTION_START);
+            intent.putExtra(DownloadApkService.EXTRA_URL, WebAPI.UPDATE_URL + "api/update/download");
+            requireContext().startService(intent);
+            Toast.makeText(requireContext(), "开始下载APK...", Toast.LENGTH_SHORT).show();
+        });
+
+        // 注册广播
+        progressReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                int progress = intent.getIntExtra("progress", 0);
+                progressDownload.setVisibility(View.VISIBLE);
+                progressDownload.setProgress(progress);
+                if (progress >= 100) {
+                    progressDownload.setVisibility(View.GONE);
+                }
+            }
+        };
+        requireContext().registerReceiver(progressReceiver, new IntentFilter("com.gxuwz.app.DOWNLOAD_PROGRESS"));
+
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (progressReceiver != null) {
+            requireContext().unregisterReceiver(progressReceiver);
+        }
     }
 }

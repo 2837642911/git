@@ -1,6 +1,7 @@
 package com.gxuwz.app.model.pojo;
 
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "user")
@@ -14,17 +15,20 @@ public class User {
     public String userName;
     public String password;
 
+    @Ignore
     public User(String phone, String password) {
         this.phone = phone;
         this.password = password;
     }
 
-
+    @Ignore
     public User(String userName, String password, String phone){
         this.phone = phone;
         this.password = password;
         this.userName=userName;
     }
+
+
 
     public User() {
     }

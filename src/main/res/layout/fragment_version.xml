@@ -129,5 +129,24 @@
                     android:textSize="14sp"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
+        
+        <!-- 测试下载APK按钮 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_download_apk"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="测试下载APK"
+            style="@style/Widget.Material3.Button"/>
+        <!-- 下载进度条 -->
+        <ProgressBar
+            android:id="@+id/progress_download"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:layout_marginTop="16dp"
+            android:progress="0"
+            android:max="100"
+            android:visibility="gone"/>
     </LinearLayout>
 </FrameLayout>

@@ -68,33 +68,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void replaceFragment(int fragmentType, boolean addToBackStack) {
-        Fragment fragment = null;
+            Fragment fragment = null;
         switch (fragmentType) {
-            case FragmentConstants.HomeFragment:
-                fragment = new HomeFragment();
-                break;
-            case FragmentConstants.NewsDetailFragment:
-                fragment = new NewsDetailFragment();
-                break;
-            case FragmentConstants.MeFragment:
-                fragment = new MeFragment();
-                break;
-            case FragmentConstants.VersionFragment:
-                fragment = new VersionFragment();
-                break;
-            case FragmentConstants.ProfileRecordFragment:
-                fragment = new NewsProfileFragment();
-                break;
-            case FragmentConstants.SettingFragment:
-                fragment = new SettingFragment();
-                break;
-            case FragmentConstants.UpdateFragment:
-                fragment = new UpdateFragment();
-                break;
-            default:
-                fragment = new HomeFragment();
-                break;
-        }
+                case FragmentConstants.HomeFragment:
+                    fragment = new HomeFragment();
+                    break;
+                case FragmentConstants.NewsDetailFragment:
+                    fragment = new NewsDetailFragment();
+                    break;
+                case FragmentConstants.MeFragment:
+                    fragment = new MeFragment();
+                    break;
+                case FragmentConstants.VersionFragment:
+                    fragment = new VersionFragment();
+                    break;
+                case FragmentConstants.ProfileRecordFragment:
+                    fragment = new NewsProfileFragment();
+                    break;
+                case FragmentConstants.SettingFragment:
+                    fragment = new SettingFragment();
+                    break;
+                case FragmentConstants.UpdateFragment:
+                    fragment = new UpdateFragment();
+                    break;
+                default:
+                    fragment = new HomeFragment();
+                    break;
+            }
         if (fragment != null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.setCustomAnimations(
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
             transaction.replace(R.id.fl_container, fragment);
             if (addToBackStack) {
                 transaction.addToBackStack(null);
-            }
+        }
             transaction.commit();
             currentFragmentType = fragmentType;
             updateUIByPosition(fragmentType);

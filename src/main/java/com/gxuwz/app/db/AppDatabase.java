@@ -11,7 +11,7 @@ import com.gxuwz.app.dao.UserDao;
 import com.gxuwz.app.model.pojo.NewsHistory;
 import com.gxuwz.app.model.pojo.User;
 
-@Database(entities = {User.class,  NewsHistory.class},version = 1)
+@Database(entities = {User.class,  NewsHistory.class}, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     private static volatile AppDatabase INSTANCE;
 

@@ -1,6 +1,7 @@
 package com.gxuwz.app.network;
 
 import com.gxuwz.app.api.NewsApi;
+import com.gxuwz.app.api.UpdateApi;
 
 import java.util.concurrent.TimeUnit;
 
@@ -9,7 +10,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
-    private static final String BASE_URL = WebAPI.NEWS_URL;
+    private static final String NEWS_URL = WebAPI.NEWS_URL;
     private static Retrofit retrofit = null;
     private static NewsApi newsApi = null;
 
@@ -24,7 +25,7 @@ public class RetrofitClient {
                     .build();
 
                 retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
+                    .baseUrl(NEWS_URL)
                     .client(okHttpClient)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
@@ -32,5 +33,13 @@ public class RetrofitClient {
             newsApi = retrofit.create(NewsApi.class);
         }
         return newsApi;
+    }
+
+    public static UpdateApi getUpdateApi() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(WebAPI.UPDATE_URL)
+                .client(new OkHttpClient.Builder().build())
+                .build();
+        return retrofit.create(UpdateApi.class);
     }
 }
