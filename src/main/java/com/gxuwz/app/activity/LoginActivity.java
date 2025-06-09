@@ -114,7 +114,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // 登录成功
         Toast.makeText(this, "登录成功", Toast.LENGTH_SHORT).show();
-        // TODO: 跳转主页或保存登录状态
+
        SessionManager.getInstance(this).saveLoginState(user);
         // 立即验证是否保存成功（建议在主线程执行）
         boolean isLoggedIn = SessionManager.getInstance(this).isLoggedIn();

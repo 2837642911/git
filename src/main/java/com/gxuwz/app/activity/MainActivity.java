@@ -59,6 +59,12 @@ public class MainActivity extends AppCompatActivity {
                 replaceFragment(FragmentConstants.MeFragment, false);
             }
         });
+
+        getSupportFragmentManager().addOnBackStackChangedListener(() -> {
+            Fragment current = getSupportFragmentManager().findFragmentById(R.id.fl_container);
+            int fragmentType = getFragmentType(current);
+            updateUIByPosition(fragmentType);
+        });
     }
 
     public void replaceFragment(int fragmentType, boolean addToBackStack) {
@@ -149,5 +155,24 @@ public class MainActivity extends AppCompatActivity {
 
     public NewsItem getCurrentNewsItem() {
         return currentNewsItem;
+    }
+
+    private int getFragmentType(Fragment fragment) {
+        if (fragment instanceof HomeFragment) {
+            return FragmentConstants.HomeFragment;
+        } else if (fragment instanceof NewsDetailFragment) {
+            return FragmentConstants.NewsDetailFragment;
+        } else if (fragment instanceof MeFragment) {
+            return FragmentConstants.MeFragment;
+        } else if (fragment instanceof VersionFragment) {
+            return FragmentConstants.VersionFragment;
+        } else if (fragment instanceof NewsProfileFragment) {
+            return FragmentConstants.ProfileRecordFragment;
+        } else if (fragment instanceof SettingFragment) {
+            return FragmentConstants.SettingFragment;
+        } else if (fragment instanceof UpdateFragment) {
+            return FragmentConstants.UpdateFragment;
+        }
+        return FragmentConstants.HomeFragment; // 默认
     }
 }

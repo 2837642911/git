@@ -2,6 +2,7 @@ package com.gxuwz.app.fragment;
 
 import static com.gxuwz.app.network.WebAPI.API_KEY;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -41,7 +42,7 @@ public class NewsDetailFragment extends Fragment {
     private boolean hasRetried = false;
 
     private TextView tvTitle, tvSource, tvTime, tvContent;
-    private ImageView ivNews, ivFavorite;
+    private ImageView ivNews, ivFavorite, ivShare;
     private TextView tvFavorite;
     private boolean isFavorite = false;
 
@@ -82,6 +83,7 @@ public class NewsDetailFragment extends Fragment {
         tvContent = view.findViewById(R.id.tv_content);
         ivFavorite = view.findViewById(R.id.iv_favorite);
         tvFavorite = view.findViewById(R.id.tv_favorite_count);
+        ivShare = view.findViewById(R.id.iv_share);
 
         if (news != null) {
             // 先显示基本信息
@@ -100,6 +102,10 @@ public class NewsDetailFragment extends Fragment {
 
             ivFavorite.setOnClickListener(v -> {
                 toggleFavorite();
+            });
+
+            ivShare.setOnClickListener(v -> {
+                shareToQQ();
             });
 
             // 加载详细内容
@@ -270,5 +276,30 @@ public class NewsDetailFragment extends Fragment {
                 Toast.makeText(requireContext(), isFavorite ? "已收藏" : "已取消收藏", Toast.LENGTH_SHORT).show();
             });
         }).start();
+    }
+
+    private void shareToQQ() {
+        if (news == null) {
+            Toast.makeText(requireContext(), "分享失败：新闻数据不完整", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setPackage("com.tencent.mobileqq");
+            intent.setType("text/plain");
+
+            // 构建分享内容
+            String shareContent = String.format("标题：%s\n作者：%s\n链接：%s",
+                    news.getTitle(),
+                    news.getAuthor_name(),
+                    news.getUrl());
+
+            intent.putExtra(Intent.EXTRA_TEXT, shareContent);
+            startActivity(intent);
+        } catch (Exception e) {
+            Toast.makeText(requireContext(), "分享失败：请确保已安装QQ", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "shareToQQ: Error sharing to QQ", e);
+        }
     }
 }
