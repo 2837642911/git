@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".View.activity.fragment.HomeFragment">
+    tools:context=".fragment.HomeFragment">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -17,7 +17,8 @@
             android:contentDescription="记录"
             app:tabGravity="fill"
             app:tabMode="fixed"
-            app:tabTextColor="@android:color/darker_gray" />
+            app:tabTextColor="@android:color/darker_gray"
+            android:visibility="gone" />
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipe_refresh_layout"

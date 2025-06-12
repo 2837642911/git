@@ -1,4 +1,4 @@
-package com.gxuwz.app.View.fragment;
+package com.gxuwz.app.fragment;
 
 public class FragmentConstants {
     public static final int NUM_PAGES = 7;

@@ -1,4 +1,4 @@
-package com.gxuwz.app.View.fragment;
+package com.gxuwz.app.fragment;
 
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -14,9 +14,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.gxuwz.app.R;
-import com.gxuwz.app.View.activity.MainActivity;
-import com.gxuwz.app.db.AppDatabase;
+import com.gxuwz.app.activity.MainActivity;
 import com.gxuwz.app.dao.UserDao;
+import com.gxuwz.app.db.AppDatabase;
 import com.gxuwz.app.model.pojo.User;
 import com.gxuwz.app.utils.SessionManager;
 
@@ -25,7 +25,6 @@ public class SettingFragment extends Fragment {
     private EditText etUserName;
     private Button btnSave;
     private User user;
-    private UserDao userDao;
 
     @Nullable
     @Override
@@ -35,7 +34,6 @@ public class SettingFragment extends Fragment {
         etUserName = view.findViewById(R.id.et_user_name);
         btnSave = view.findViewById(R.id.btn_save);
 
-        userDao = AppDatabase.getInstance(requireContext()).userDao();
         // 获取当前用户
         user = getCurrentUser();
         if (user != null) {
@@ -52,6 +50,7 @@ public class SettingFragment extends Fragment {
                 user.setUserName(newUserName);
                 // 更新数据库
                 new Thread(() -> {
+                    UserDao userDao = AppDatabase.getInstance(requireContext()).userDao();
                     userDao.updateUser(user);
                     // 更新Session
                     SessionManager.getInstance(requireContext()).saveLoginState(user);
@@ -79,6 +78,7 @@ public class SettingFragment extends Fragment {
 
     private User getCurrentUser() {
         int userId = SessionManager.getInstance(requireContext()).getUserId();
+        UserDao userDao = AppDatabase.getInstance(requireContext()).userDao();
         return userDao.getUserById(userId);
     }
 }

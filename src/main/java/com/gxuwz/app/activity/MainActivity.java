@@ -1,8 +1,7 @@
-package com.gxuwz.app.View.activity;
+package com.gxuwz.app.activity;
 
-
-import static com.gxuwz.app.View.fragment.FragmentConstants.HomePositionGroup;
-import static com.gxuwz.app.View.fragment.FragmentConstants.MePositionGroup;
+import static com.gxuwz.app.fragment.FragmentConstants.HomePositionGroup;
+import static com.gxuwz.app.fragment.FragmentConstants.MePositionGroup;
 
 import android.os.Bundle;
 import android.view.View;
@@ -13,14 +12,14 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.gxuwz.app.R;
-import com.gxuwz.app.View.fragment.FragmentConstants;
-import com.gxuwz.app.View.fragment.HomeFragment;
-import com.gxuwz.app.View.fragment.MeFragment;
-import com.gxuwz.app.View.fragment.NewsDetailFragment;
-import com.gxuwz.app.View.fragment.NewsProfileFragment;
-import com.gxuwz.app.View.fragment.SettingFragment;
-import com.gxuwz.app.View.fragment.UpdateFragment;
-import com.gxuwz.app.View.fragment.VersionFragment;
+import com.gxuwz.app.fragment.FragmentConstants;
+import com.gxuwz.app.fragment.HomeFragment;
+import com.gxuwz.app.fragment.MeFragment;
+import com.gxuwz.app.fragment.NewsDetailFragment;
+import com.gxuwz.app.fragment.NewsProfileFragment;
+import com.gxuwz.app.fragment.SettingFragment;
+import com.gxuwz.app.fragment.UpdateFragment;
+import com.gxuwz.app.fragment.VersionFragment;
 import com.gxuwz.app.model.network.NewsItem;
 
 public class MainActivity extends AppCompatActivity {

@@ -1,4 +1,4 @@
-package com.gxuwz.app.View.fragment;
+package com.gxuwz.app.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -8,8 +8,7 @@ import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 
 import com.gxuwz.app.R;
-import com.gxuwz.app.View.activity.LoginActivity;
-import com.gxuwz.app.View.activity.MainActivity;
+import com.gxuwz.app.activity.MainActivity;
 
 
 /**
@@ -72,7 +71,7 @@ public class MeFragment extends Fragment {
         logoutLayout.setOnClickListener(v -> {
             com.gxuwz.app.utils.SessionManager.getInstance(requireContext()).clearLoginState();
             requireActivity().finish();
-            startActivity(new android.content.Intent(requireContext(), LoginActivity.class));
+            startActivity(new android.content.Intent(requireContext(), com.gxuwz.app.activity.LoginActivity.class));
         });
     }
 

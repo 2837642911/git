@@ -4,6 +4,7 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "news_history")
+
 public class NewsHistory {
     @PrimaryKey(autoGenerate = true)
     private long id;

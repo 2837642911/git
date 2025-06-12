@@ -1,6 +1,5 @@
 package com.gxuwz.app.adapter;
 
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,24 +39,25 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull NewsViewHolder holder, int position) {
-        NewsItem item = newsList.get(position);
-        // 标题
-        holder.title.setText(item.getTitle());
-        // 作者（来源）
-        holder.source.setText(item.getAuthor_name());
-        // 时间
-        holder.time.setText(item.getDate());
-        // 图片懒加载
-        holder.image.setImageDrawable(null);
-        if (!TextUtils.isEmpty(item.getThumbnail_pic_s())) {
-            Glide.with(holder.image.getContext())
-                .load(item.getThumbnail_pic_s())
-                .into(holder.image);
-        } else {
-            holder.image.setImageDrawable(null);
+        NewsItem newsItem = newsList.get(position);
+        holder.titleTextView.setText(newsItem.getTitle());
+        holder.sourceTextView.setText(newsItem.getAuthor_name());
+        holder.timeTextView.setText(newsItem.getDate());
+
+        // Load image using Glide
+        if (newsItem.getThumbnail_pic_s() != null && !newsItem.getThumbnail_pic_s().isEmpty()) {
+            Glide.with(holder.itemView.getContext())
+                    .load(newsItem.getThumbnail_pic_s())
+                    .centerCrop()
+                    .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.ALL)
+                    .skipMemoryCache(false)
+                    .into(holder.imageView);
         }
+
         holder.itemView.setOnClickListener(v -> {
-            if (listener != null) listener.onItemClick(item);
+            if (listener != null) {
+                listener.onItemClick(newsItem);
+            }
         });
     }
 
@@ -67,22 +67,25 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
     }
 
     public void updateNewsList(List<NewsItem> newList) {
-        this.newsList.clear();
-        this.newsList.addAll(newList);
+        this.newsList = newList;
         notifyDataSetChanged();
     }
 
     static class NewsViewHolder extends RecyclerView.ViewHolder {
-        TextView title, source, time;
-        ImageView image;
+        ImageView imageView;
+        TextView titleTextView;
+        TextView sourceTextView;
+        TextView timeTextView;
+
         NewsViewHolder(View itemView) {
             super(itemView);
-            title = itemView.findViewById(R.id.tv_news_title);
-            source = itemView.findViewById(R.id.tv_news_source);
-            time = itemView.findViewById(R.id.tv_news_time);
-            image = itemView.findViewById(R.id.iv_news_image);
+            imageView = itemView.findViewById(R.id.iv_news_image);
+            titleTextView = itemView.findViewById(R.id.tv_news_title);
+            sourceTextView = itemView.findViewById(R.id.tv_news_source);
+            timeTextView = itemView.findViewById(R.id.tv_news_time);
         }
     }
+
 
     // 用于刷新整个列表（比如下拉刷新、首次加载）
     public void updateNewsHistoryList(List<NewsHistory> newList) {
@@ -116,4 +119,4 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
 
         return item;
     }
-}
+} 

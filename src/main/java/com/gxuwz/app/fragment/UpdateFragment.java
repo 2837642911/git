@@ -1,4 +1,4 @@
-package com.gxuwz.app.View.fragment;
+package com.gxuwz.app.fragment;
 
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -15,10 +15,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.gxuwz.app.R;
-import com.gxuwz.app.View.activity.LoginActivity;
-import com.gxuwz.app.model.pojo.User;
-import com.gxuwz.app.db.AppDatabase;
 import com.gxuwz.app.dao.UserDao;
+import com.gxuwz.app.db.AppDatabase;
+import com.gxuwz.app.model.pojo.User;
 import com.gxuwz.app.utils.SessionManager;
 
 public class UpdateFragment extends Fragment {
@@ -26,8 +25,6 @@ public class UpdateFragment extends Fragment {
     private EditText etAccount, etPassword, etRepeatPassword, etCode;
     private Button btnRegister, btnSendCode;
     private CountDownTimer countDownTimer;
-    private UserDao userDao;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -39,7 +36,6 @@ public class UpdateFragment extends Fragment {
         etCode = view.findViewById(R.id.et_code);
         btnRegister = view.findViewById(R.id.btn_register);
         btnSendCode = view.findViewById(R.id.btn_send_code);
-        userDao = AppDatabase.getInstance(requireContext()).userDao();
 
         btnSendCode.setOnClickListener(v -> {
             // TODO: 发送验证码逻辑
@@ -73,6 +69,7 @@ public class UpdateFragment extends Fragment {
             // 更新数据库中的手机号和密码
             new Thread(() -> {
                 int userId = SessionManager.getInstance(requireContext()).getUserId();
+                UserDao userDao = AppDatabase.getInstance(requireContext()).userDao();
                 User user = userDao.getUserById(userId);
                 if (user != null) {
                     user.setPhone(phone);
@@ -84,7 +81,7 @@ public class UpdateFragment extends Fragment {
                 requireActivity().runOnUiThread(() -> {
                     Toast.makeText(requireContext(), "修改成功，请重新登录", Toast.LENGTH_SHORT).show();
                     requireActivity().finish();
-                    startActivity(new android.content.Intent(requireContext(), LoginActivity.class));
+                    startActivity(new android.content.Intent(requireContext(), com.gxuwz.app.activity.LoginActivity.class));
                 });
             }).start();
         });

@@ -24,7 +24,7 @@
         tools:targetApi="31">
 
         <activity
-            android:name=".View.activity.AdActivity"
+            android:name=".activity.AdActivity"
             android:exported="true"
             android:theme="@style/Theme.MyApp"> <!-- 添加全屏主题 -->
             <intent-filter>
@@ -33,15 +33,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".View.activity.LoginActivity"
+            android:name=".activity.LoginActivity"
             android:exported="false"
             android:theme="@style/Theme.MyApp" />
-        <activity android:name=".View.activity.RegisterActivity"
+        <activity android:name=".activity.RegisterActivity"
             android:exported="false"
             android:theme="@style/Theme.MyApp"/>
         <!-- MainActivity 不再是入口点 -->
         <activity
-            android:name=".View.activity.MainActivity"
+            android:name=".activity.MainActivity"
             android:exported="true">
 <!--            <intent-filter>-->
 <!--                <action android:name="android.intent.action.MAIN" />-->

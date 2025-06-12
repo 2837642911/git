@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".View.activity.fragment.HomeFragment">
+    tools:context=".fragment.HomeFragment">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -14,36 +14,31 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:background="@android:color/white">
+            android:gravity="center_vertical">
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tab_layout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:contentDescription="新闻分类选项卡"
                 app:tabGravity="fill"
-                app:tabMode="scrollable"
-                app:tabTextColor="@android:color/darker_gray"/>
+                app:tabMode="fixed"
+                app:tabTextColor="@android:color/darker_gray" />
 
             <ImageButton
                 android:id="@+id/btn_edit_category"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:src="@drawable/baseline_format_list_bulleted_24"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="编辑分类"
-                android:src="@drawable/baseline_format_list_bulleted_24" />
+                android:contentDescription="编辑分类"/>
         </LinearLayout>
 
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/swipe_refresh_layout"
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/view_pager"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1">
-
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/view_pager"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+            android:layout_weight="1" />
     </LinearLayout>
 </FrameLayout>

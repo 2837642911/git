@@ -1,4 +1,4 @@
-package com.gxuwz.app.View.fragment;
+package com.gxuwz.app.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,11 +13,11 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.tabs.TabLayout;
 import com.gxuwz.app.R;
-import com.gxuwz.app.View.activity.MainActivity;
+import com.gxuwz.app.activity.MainActivity;
 import com.gxuwz.app.adapter.NewsAdapter;
-import com.gxuwz.app.model.pojo.NewsHistory;
-import com.gxuwz.app.db.AppDatabase;
 import com.gxuwz.app.dao.NewsHistoryDao;
+import com.gxuwz.app.db.AppDatabase;
+import com.gxuwz.app.model.pojo.NewsHistory;
 import com.gxuwz.app.utils.SessionManager;
 
 import java.util.ArrayList;
@@ -43,8 +43,6 @@ public class NewsProfileFragment extends Fragment {
 
     private int selectedTab = 0; // 0: 历史记录, 1: 收藏
 
-    private NewsHistoryDao newsHistoryDao;
-
     public NewsProfileFragment() {
         super();
     }
@@ -63,7 +61,6 @@ public class NewsProfileFragment extends Fragment {
         if (getArguments() != null) {
             mType = getArguments().getString(ARG_TYPE, TYPE_HISTORY);
         }
-        newsHistoryDao = AppDatabase.getInstance(requireContext()).newsHistoryDao();
     }
 
     @Nullable
@@ -133,11 +130,13 @@ public class NewsProfileFragment extends Fragment {
         isLoading = true;
         new Thread(() -> {
             int userId = SessionManager.getInstance(requireContext()).getUserId();
+            AppDatabase db = AppDatabase.getInstance(requireContext());
+            NewsHistoryDao dao = db.newsHistoryDao();
             List<NewsHistory> list;
             if (TYPE_FAVORITE.equals(mType)) {
-                list = newsHistoryDao.getFavoriteNewsByUserId(userId);
+                list = dao.getFavoriteNewsByUserId(userId);
             } else {
-                list = newsHistoryDao.getNewsHistoryByUserId(userId);
+                list = dao.getNewsHistoryByUserId(userId);
             }
             allData.clear();
             allData.addAll(list);

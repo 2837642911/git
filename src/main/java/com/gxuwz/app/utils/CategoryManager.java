@@ -18,9 +18,9 @@ public class CategoryManager {
     public static void saveCategories(Context context, List<String> types, List<String> titles) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         prefs.edit()
-            .putString(KEY_TYPES, TextUtils.join(",", types))
-            .putString(KEY_TITLES, TextUtils.join(",", titles))
-            .apply();
+                .putString(KEY_TYPES, TextUtils.join(",", types))
+                .putString(KEY_TITLES, TextUtils.join(",", titles))
+                .apply();
     }
 
     public static List<String> getTypes(Context context) {
@@ -43,4 +43,4 @@ public class CategoryManager {
     public static List<String> getAllTitles() {
         return Arrays.asList(DEFAULT_TITLES);
     }
-} 
+}

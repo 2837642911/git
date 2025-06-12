@@ -1,65 +1,48 @@
-package com.gxuwz.app.View.activity;
+package com.gxuwz.app.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.text.TextUtils;
-import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.gxuwz.app.R;
-import com.gxuwz.app.db.AppDatabase;
 import com.gxuwz.app.dao.UserDao;
+import com.gxuwz.app.db.AppDatabase;
 import com.gxuwz.app.model.pojo.User;
-import com.gxuwz.app.utils.SessionManager;
 
-public class LoginActivity extends AppCompatActivity {
 
-    private EditText etAccount, etPassword, etCode;
-    private Button btnSendCode, btnLogin;
+public class RegisterActivity extends AppCompatActivity {
+
+    private EditText etAccount, etPassword, etRepeatPassword, etCode;
+    private Button btnSendCode, btnRegister;
     private CountDownTimer countDownTimer;
-    private static final String TAG = "LoginActivity"; // 添加 TAG 定义
-    private UserDao userDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_register);
 
         etAccount = findViewById(R.id.et_account);
         etPassword = findViewById(R.id.et_password);
+        etRepeatPassword = findViewById(R.id.et_repeat_password);
         etCode = findViewById(R.id.et_code);
         btnSendCode = findViewById(R.id.btn_send_code);
-        btnLogin = findViewById(R.id.btn_login);
+        btnRegister = findViewById(R.id.btn_register);
 
-        userDao = AppDatabase.getInstance(this).userDao();
+        btnSendCode.setOnClickListener(v -> sendCode());
+        btnRegister.setOnClickListener(v -> register());
 
-        btnSendCode.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendCode();
-            }
-        });
-
-        btnLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                login();
-            }
-        });
-
-        View  tvToRegister = findViewById(R.id.tv_to_register);
-        tvToRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivity(intent);
-            }
+        TextView tvToLogin = findViewById(R.id.tv_to_login);
+        tvToLogin.setOnClickListener(v -> {
+            Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
         });
     }
 
@@ -87,9 +70,11 @@ public class LoginActivity extends AppCompatActivity {
         }.start();
     }
 
-    private void login() {
+    private void register() {
         String phone = etAccount.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
+        String repeatPassword = etRepeatPassword.getText().toString().trim();
+        String code = etCode.getText().toString().trim();
 
         if (TextUtils.isEmpty(phone) || phone.length() != 11) {
             etAccount.setError("请输入正确的手机号");
@@ -99,29 +84,31 @@ public class LoginActivity extends AppCompatActivity {
             etPassword.setError("请输入密码");
             return;
         }
-
-        // Service层操作
-        User user = userDao.getUserByPhone(phone);
-
-        if (user == null) {
-            Toast.makeText(this, "手机号或密码错误", Toast.LENGTH_SHORT).show();
+        if (!password.equals(repeatPassword)) {
+            etRepeatPassword.setError("两次输入的密码不一致");
             return;
         }
-        if (!password.equals(user.password)) {
-            Toast.makeText(this, "手机号或密码错误", Toast.LENGTH_SHORT).show();
+        if (TextUtils.isEmpty(code)) {
+            etCode.setError("请输入验证码");
             return;
         }
 
-        // 登录成功
-        Toast.makeText(this, "登录成功", Toast.LENGTH_SHORT).show();
-
-       SessionManager.getInstance(this).saveLoginState(user);
-        // 立即验证是否保存成功（建议在主线程执行）
-        boolean isLoggedIn = SessionManager.getInstance(this).isLoggedIn();
-        Log.d(TAG, "login: isLoggedIn = " + isLoggedIn); // 输出实际状态值
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        startActivity(intent);
-        finish();
+        // Room数据库操作
+        AppDatabase db = AppDatabase.getInstance(this);
+        UserDao userDao = db.userDao();
+        User exist = userDao.getUserByPhone(phone);
+        if (exist != null) {
+            Toast.makeText(this, "手机号已注册", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        User user = new User(phone, password);
+        long result = userDao.insertUser(user);
+        if (result != -1) {
+            Toast.makeText(this, "注册成功", Toast.LENGTH_SHORT).show();
+            finish();
+        } else {
+            Toast.makeText(this, "注册失败", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
