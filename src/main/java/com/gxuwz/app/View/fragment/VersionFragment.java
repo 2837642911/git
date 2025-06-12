@@ -1,4 +1,4 @@
-package com.gxuwz.app.fragment;
+package com.gxuwz.app.View.fragment;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -122,7 +122,12 @@ public class VersionFragment extends Fragment {
                 }
             }
         };
-        requireContext().registerReceiver(progressReceiver, new IntentFilter("com.gxuwz.app.DOWNLOAD_PROGRESS"));
+        IntentFilter filter = new IntentFilter("com.gxuwz.app.DOWNLOAD_PROGRESS");
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            requireContext().registerReceiver(progressReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            requireContext().registerReceiver(progressReceiver, filter);
+        }
 
         return view;
     }

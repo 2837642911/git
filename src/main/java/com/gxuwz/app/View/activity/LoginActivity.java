@@ -1,4 +1,4 @@
-package com.gxuwz.app.activity;
+package com.gxuwz.app.View.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,8 +13,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.gxuwz.app.R;
-import com.gxuwz.app.dao.UserDao;
 import com.gxuwz.app.db.AppDatabase;
+import com.gxuwz.app.dao.UserDao;
 import com.gxuwz.app.model.pojo.User;
 import com.gxuwz.app.utils.SessionManager;
 
@@ -24,7 +24,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnSendCode, btnLogin;
     private CountDownTimer countDownTimer;
     private static final String TAG = "LoginActivity"; // 添加 TAG 定义
-
+    private UserDao userDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +36,8 @@ public class LoginActivity extends AppCompatActivity {
         etCode = findViewById(R.id.et_code);
         btnSendCode = findViewById(R.id.btn_send_code);
         btnLogin = findViewById(R.id.btn_login);
+
+        userDao = AppDatabase.getInstance(this).userDao();
 
         btnSendCode.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,9 +100,7 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        // Room数据库操作
-        AppDatabase db = AppDatabase.getInstance(this);
-        UserDao userDao = db.userDao();
+        // Service层操作
         User user = userDao.getUserByPhone(phone);
 
         if (user == null) {

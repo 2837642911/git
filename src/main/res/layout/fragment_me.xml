@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F8F8F8"
-    tools:context=".fragment.HomeFragment">
+    tools:context=".View.activity.fragment.HomeFragment">
 
     <!-- 顶部渐变背景：占满宽度 + 固定高度 -->
     <View

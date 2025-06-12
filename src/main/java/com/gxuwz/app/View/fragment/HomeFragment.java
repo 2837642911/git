@@ -1,12 +1,12 @@
-package com.gxuwz.app.fragment;
-
-import static com.gxuwz.app.network.WebAPI.API_KEY;
+package com.gxuwz.app.View.fragment;
 
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,20 +16,24 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.tabs.TabLayout;
 import com.gxuwz.app.R;
-import com.gxuwz.app.activity.MainActivity;
+import com.gxuwz.app.View.activity.MainActivity;
 import com.gxuwz.app.adapter.NewsAdapter;
 import com.gxuwz.app.api.NewsApi;
-import com.gxuwz.app.dao.NewsHistoryDao;
 import com.gxuwz.app.db.AppDatabase;
+import com.gxuwz.app.dao.NewsHistoryDao;
 import com.gxuwz.app.model.network.NewsItem;
 import com.gxuwz.app.model.network.NewsResponse;
 import com.gxuwz.app.model.pojo.NewsHistory;
-import com.gxuwz.app.network.ResponseHandler;
 import com.gxuwz.app.network.RetrofitClient;
+import com.gxuwz.app.network.WebAPI;
+import com.gxuwz.app.utils.CategoryManager;
 import com.gxuwz.app.utils.SessionManager;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import retrofit2.Call;
 
@@ -52,11 +56,11 @@ public class HomeFragment extends Fragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private NewsAdapter newsAdapter;
     private NewsApi newsApi;
+    private NewsHistoryDao newsHistoryDao;
     private Random random = new Random();
-    private Call<NewsResponse> currentCall;
     private TabLayout tabLayout;
-    private String[] tabTypes = {"top", "guonei", "guoji"};
-    private String[] tabTitles = {"推荐", "国内", "国际"};
+    private List<String> tabTypes;
+    private List<String> tabTitles;
     private String currentType = "top";
 
     public HomeFragment() {
@@ -84,6 +88,9 @@ public class HomeFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
         newsApi = RetrofitClient.getNewsApi();
+        newsHistoryDao = AppDatabase.getInstance(requireContext()).newsHistoryDao();
+        tabTypes = CategoryManager.getTypes(requireContext());
+        tabTitles = CategoryManager.getTitles(requireContext());
     }
 
     @Nullable
@@ -94,20 +101,16 @@ public class HomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
         tabLayout = view.findViewById(R.id.tab_layout);
-        for (String title : tabTitles) {
-            tabLayout.addTab(tabLayout.newTab().setText(title));
-        }
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                int pos = tab.getPosition();
-                currentType = tabTypes[pos];
-                loadNews(currentType);
-            }
-            @Override public void onTabUnselected(TabLayout.Tab tab) {}
-            @Override public void onTabReselected(TabLayout.Tab tab) {}
+        ImageButton btnEditCategory = view.findViewById(R.id.btn_edit_category);
+        btnEditCategory.setOnClickListener(v -> {
+            requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fl_container, new CategoryEditFragment())
+                .addToBackStack(null)
+                .commit();
         });
 
+        // 先初始化 recyclerView 和 swipeRefreshLayout
         recyclerView = view.findViewById(R.id.recycler_view_news);
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
 
@@ -128,69 +131,83 @@ public class HomeFragment extends Fragment {
         // 设置下拉刷新
         swipeRefreshLayout.setOnRefreshListener(() -> loadNews(currentType));
 
-        // 首次加载数据
-        loadNews();
+        // 再刷新Tab
+        refreshTabs();
 
         return view;
+    }
+
+    private void refreshTabs() {
+        tabLayout.removeAllTabs();
+        for (String title : tabTitles) {
+            tabLayout.addTab(tabLayout.newTab().setText(title));
+        }
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                int pos = tab.getPosition();
+                currentType = tabTypes.get(pos);
+                loadNews(currentType);
+            }
+            @Override public void onTabUnselected(TabLayout.Tab tab) {}
+            @Override public void onTabReselected(TabLayout.Tab tab) {}
+        });
+        // 默认只加载第一个Tab
+        if (!tabTypes.isEmpty()) {
+            currentType = tabTypes.get(0);
+            loadNews(currentType);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // 每次返回都刷新Tab
+        if (tabLayout != null) {
+            refreshTabs();
+        }
     }
 
     private void loadNews(String type) {
         Log.d(TAG, "loadNews: type=" + type);
         int page = random.nextInt(50) + 1;
-        if (currentCall != null && !currentCall.isCanceled()) {
-            currentCall.cancel();
-        }
         swipeRefreshLayout.setRefreshing(true);
-        currentCall = newsApi.getNewsList(API_KEY, type, page, PAGE_SIZE, IS_FILTER);
-        ResponseHandler.handleResponse(requireContext(),
-            currentCall,
-            new ResponseHandler.ResponseCallback<NewsResponse>() {
-                @Override
-                public void onSuccess(NewsResponse response) {
-                    Log.d(TAG, "onSuccess: News loaded successfully");
+        new Thread(() -> {
+            try {
+                Call<NewsResponse> call = newsApi.getNewsList(WebAPI.API_KEY, type, page, PAGE_SIZE, IS_FILTER);
+                retrofit2.Response<NewsResponse> response = call.execute();
+                NewsResponse newsResponse = response.isSuccessful() ? response.body() : null;
+                requireActivity().runOnUiThread(() -> {
                     if (getActivity() == null) {
                         Log.w(TAG, "onSuccess: Activity is null");
                         return;
                     }
-                    NewsResponse.Result result = response.getResult();
-                    if (result != null && result.getData() != null) {
-                        Log.d(TAG, "onSuccess: Updating adapter with " + result.getData().size() + " items");
-                        newsAdapter.updateNewsList(result.getData());
+                    if (newsResponse != null && newsResponse.getResult() != null && newsResponse.getResult().getData() != null) {
+                        Log.d(TAG, "onSuccess: Updating adapter with " + newsResponse.getResult().getData().size() + " items");
+                        newsAdapter.updateNewsList(newsResponse.getResult().getData());
                     } else {
                         Log.w(TAG, "onSuccess: Result or data is null");
                     }
                     if (swipeRefreshLayout != null) {
                         swipeRefreshLayout.setRefreshing(false);
                     }
-                }
-
-                @Override
-                public void onError(String errorMsg) {
-                    Log.e(TAG, "onError: " + errorMsg);
-                    if (getActivity() == null) {
-                        Log.w(TAG, "onError: Activity is null");
-                        return;
-                    }
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                requireActivity().runOnUiThread(() -> {
                     if (swipeRefreshLayout != null) {
                         swipeRefreshLayout.setRefreshing(false);
                     }
-                }
-            });
-    }
-
-    private void loadNews() {
-        loadNews(currentType);
+                    Toast.makeText(requireContext(), "加载新闻失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+            }
+        }).start();
     }
 
     @Override
     public void onDestroyView() {
         Log.d(TAG, "onDestroyView: Fragment view being destroyed");
         super.onDestroyView();
-        // 取消网络请求
-        if (currentCall != null && !currentCall.isCanceled()) {
-            Log.d(TAG, "onDestroyView: Cancelling network request");
-            currentCall.cancel();
-        }
         // 清除引用
         recyclerView = null;
         swipeRefreshLayout = null;
@@ -202,44 +219,18 @@ public class HomeFragment extends Fragment {
         super.onDestroy();
     }
 
-
-
-
     private void saveNewsToHistory(NewsItem newsItem) {
-        // 获取当前用户ID（从SessionManager或其他地方获取）
         int userId = SessionManager.getInstance(requireContext()).getUserId();
-
-        // 创建NewsHistory对象
-        NewsHistory newsHistory = new NewsHistory(
-                userId,
-                newsItem.getUniquekey(), // 假设NewsItem有getUniquekey()方法
-                newsItem.getTitle(),
-                newsItem.getCategory(),
-                newsItem.getThumbnail_pic_s(),
-                newsItem.getUrl(),
-                newsItem.getAuthor_name(),
-                newsItem.getDate()
-        );
-
-
-                    AppDatabase db = AppDatabase.getInstance(requireContext());
-                    NewsHistoryDao dao = db.newsHistoryDao();
-
-                    // 检查新闻是否已存在（避免重复记录）
-                    NewsHistory existingNews = dao.getNewsHistory(
-                            newsItem.getUniquekey(),
-                            userId
-                    );
-
-                    if (existingNews == null) {
-                        // 新闻不存在，插入新记录
-                        dao.insert(newsHistory);
-                        Log.d(TAG, "saveNewsToHistory: 新闻已保存到历史记录");
-                    } else {
-                        // 新闻已存在，更新浏览时间
-                        existingNews.setViewTime(System.currentTimeMillis());
-                        dao.update(existingNews);
-                        Log.d(TAG, "saveNewsToHistory: 新闻已存在，更新浏览时间");
-                    }
-                }
+        new Thread(() -> {
+            NewsHistory history = newsHistoryDao.getNewsHistory(newsItem.getUniquekey(), userId);
+            if (history == null) {
+                history = new NewsHistory(userId, newsItem.getUniquekey(), newsItem.getTitle(), newsItem.getCategory(),
+                        newsItem.getThumbnail_pic_s(), newsItem.getUrl(), newsItem.getAuthor_name(), newsItem.getDate());
+                newsHistoryDao.insert(history);
+            } else {
+                history.setViewTime(System.currentTimeMillis());
+                newsHistoryDao.update(history);
+            }
+        }).start();
     }
+}

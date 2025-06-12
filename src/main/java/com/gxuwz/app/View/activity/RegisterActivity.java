@@ -1,4 +1,4 @@
-package com.gxuwz.app.activity;
+package com.gxuwz.app.View.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,9 +12,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.gxuwz.app.R;
-import com.gxuwz.app.dao.UserDao;
-import com.gxuwz.app.db.AppDatabase;
 import com.gxuwz.app.model.pojo.User;
+import com.gxuwz.app.db.AppDatabase;
+import com.gxuwz.app.dao.UserDao;
 
 
 public class RegisterActivity extends AppCompatActivity {
@@ -22,6 +22,7 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText etAccount, etPassword, etRepeatPassword, etCode;
     private Button btnSendCode, btnRegister;
     private CountDownTimer countDownTimer;
+    private UserDao userDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +35,8 @@ public class RegisterActivity extends AppCompatActivity {
         etCode = findViewById(R.id.et_code);
         btnSendCode = findViewById(R.id.btn_send_code);
         btnRegister = findViewById(R.id.btn_register);
+
+        userDao = AppDatabase.getInstance(this).userDao();
 
         btnSendCode.setOnClickListener(v -> sendCode());
         btnRegister.setOnClickListener(v -> register());
@@ -93,22 +96,16 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // Room数据库操作
-        AppDatabase db = AppDatabase.getInstance(this);
-        UserDao userDao = db.userDao();
+        // Service层操作
         User exist = userDao.getUserByPhone(phone);
         if (exist != null) {
             Toast.makeText(this, "手机号已注册", Toast.LENGTH_SHORT).show();
             return;
         }
         User user = new User(phone, password);
-        long result = userDao.insertUser(user);
-        if (result != -1) {
-            Toast.makeText(this, "注册成功", Toast.LENGTH_SHORT).show();
-            finish();
-        } else {
-            Toast.makeText(this, "注册失败", Toast.LENGTH_SHORT).show();
-        }
+        userDao.insertUser(user);
+        Toast.makeText(this, "注册成功", Toast.LENGTH_SHORT).show();
+        finish();
     }
 
     @Override

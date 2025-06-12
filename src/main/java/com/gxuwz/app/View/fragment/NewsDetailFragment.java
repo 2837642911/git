@@ -1,6 +1,4 @@
-package com.gxuwz.app.fragment;
-
-import static com.gxuwz.app.network.WebAPI.API_KEY;
+package com.gxuwz.app.View.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,17 +15,15 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
-import com.google.gson.Gson;
 import com.gxuwz.app.R;
-import com.gxuwz.app.activity.MainActivity;
+import com.gxuwz.app.View.activity.MainActivity;
 import com.gxuwz.app.api.NewsApi;
-import com.gxuwz.app.dao.NewsHistoryDao;
-import com.gxuwz.app.db.AppDatabase;
 import com.gxuwz.app.model.network.NewsDetailResponse;
 import com.gxuwz.app.model.network.NewsItem;
 import com.gxuwz.app.model.pojo.NewsHistory;
-import com.gxuwz.app.network.ResponseHandler;
 import com.gxuwz.app.network.RetrofitClient;
+import com.gxuwz.app.db.AppDatabase;
+import com.gxuwz.app.dao.NewsHistoryDao;
 import com.gxuwz.app.utils.SessionManager;
 
 import retrofit2.Call;
@@ -46,6 +42,8 @@ public class NewsDetailFragment extends Fragment {
     private TextView tvFavorite;
     private boolean isFavorite = false;
 
+    private NewsHistoryDao newsHistoryDao;
+
     public static NewsDetailFragment newInstance(NewsItem news) {
         NewsDetailFragment fragment = new NewsDetailFragment();
         Bundle args = new Bundle();
@@ -61,6 +59,7 @@ public class NewsDetailFragment extends Fragment {
             news = (NewsItem) getArguments().getSerializable(ARG_NEWS);
         }
         newsApi = RetrofitClient.getNewsApi();
+        newsHistoryDao = AppDatabase.getInstance(requireContext()).newsHistoryDao();
     }
 
     @Nullable
@@ -114,90 +113,21 @@ public class NewsDetailFragment extends Fragment {
     }
 
     private void loadNewsDetail() {
-        if (news == null || news.getUniquekey() == null) {
-            Log.e(TAG, "loadNewsDetail: News or uniquekey is null");
-            if (tvContent != null) tvContent.setText("无法加载新闻详情：新闻数据不完整");
-            return;
-        }
-
-        Log.d(TAG, "loadNewsDetail: API_KEY = " + API_KEY + ", uniquekey = " + news.getUniquekey());
-        currentCall = newsApi.getNewsDetail(API_KEY, news.getUniquekey());
-        ResponseHandler.handleResponse(requireContext(),
-            currentCall,
-            new ResponseHandler.ResponseCallback<NewsDetailResponse>() {
-                @Override
-                public void onSuccess(NewsDetailResponse response) {
-                    // 防止Fragment视图已销毁
-                    if (getView() == null || getActivity() == null || tvTitle == null) {
-                        Log.w(TAG, "onSuccess: getView() or getActivity() or tvTitle is null, fragment may be destroyed");
-                        return;
-                    }
-                    Log.d(TAG, "onSuccess: News detail loaded successfully");
-                    Log.d(TAG, "onSuccess: response JSON = " + new Gson().toJson(response));
-                    Log.d(TAG, "onSuccess: error_code = " + response.getError_code());
-                    Log.d(TAG, "onSuccess: reason = " + response.getReason());
-                    NewsDetailResponse.Result result = response.getResult();
-                    if (result != null) {
-                        Log.d(TAG, "onSuccess: result.uniquekey = " + result.getUniquekey());
-                        Log.d(TAG, "onSuccess: result.content = " + result.getContent());
-                        NewsDetailResponse.Detail detail = result.getDetail();
-                        if (detail != null) {
-                            Log.d(TAG, "onSuccess: detail.title = " + detail.getTitle());
-                            Log.d(TAG, "onSuccess: detail.date = " + detail.getDate());
-                            Log.d(TAG, "onSuccess: detail.category = " + detail.getCategory());
-                            Log.d(TAG, "onSuccess: detail.author_name = " + detail.getAuthor_name());
-                            Log.d(TAG, "onSuccess: detail.url = " + detail.getUrl());
-                            Log.d(TAG, "onSuccess: detail.thumbnail_pic_s = " + detail.getThumbnail_pic_s());
-                        }
-                        // 更新标题、来源和时间（如果详情中有更新）
-                        if (detail != null) {
-                            tvTitle.setText(detail.getTitle());
-                            tvSource.setText(detail.getAuthor_name());
-                            tvTime.setText(detail.getDate());
-                            // 如果有新的图片，更新图片
-                            if (detail.getThumbnail_pic_s() != null && !detail.getThumbnail_pic_s().isEmpty()) {
-                                Glide.with(requireContext())
-                                        //为了方便只显示一张
-                                    .load(detail.getThumbnail_pic_s())
-
-                                        .into(ivNews);
-                            }
-                        }
-                        // 显示内容
-                        String content = result.getContent();
-                        if (content != null && !content.isEmpty()) {
-                            tvContent.setText(android.text.Html.fromHtml(content, android.text.Html.FROM_HTML_MODE_LEGACY));
-                        } else {
-                            tvContent.setText("暂无详细内容");
-                        }
-                    } else {
-                        Log.w(TAG, "onSuccess: Result is null");
-                        tvContent.setText("暂无详细内容");
-                    }
+        currentCall = newsApi.getNewsDetail(com.gxuwz.app.network.WebAPI.API_KEY, news.getUniquekey());
+        currentCall.enqueue(new retrofit2.Callback<NewsDetailResponse>() {
+            @Override
+            public void onResponse(retrofit2.Call<NewsDetailResponse> call, retrofit2.Response<NewsDetailResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    // TODO: 更新UI显示新闻详情内容
+                } else {
+                    Toast.makeText(requireContext(), "加载新闻详情失败", Toast.LENGTH_SHORT).show();
                 }
-                @Override
-                public void onError(String errorMsg) {
-                    Log.e(TAG, "onError: " + errorMsg);
-                    if (getActivity() == null || tvContent == null) {
-                        Log.w(TAG, "onError: Activity or tvContent is null");
-                        return;
-                    }
-                    if (errorMsg.contains("网络错误") && !hasRetried) {
-                        hasRetried = true;
-                        Log.d(TAG, "onError: Retrying once...");
-                        loadNewsDetail();
-                        return;
-                    }
-                    String displayMsg = "加载详细内容失败";
-                    if (errorMsg.contains("未知错误")) {
-                        displayMsg += "：服务器返回未知错误";
-                    } else {
-                        displayMsg += "：" + errorMsg;
-                    }
-                    tvContent.setText(displayMsg);
-                    Toast.makeText(getContext(), displayMsg, Toast.LENGTH_SHORT).show();
-                }
-            });
+            }
+            @Override
+            public void onFailure(retrofit2.Call<NewsDetailResponse> call, Throwable t) {
+                Toast.makeText(requireContext(), "加载新闻详情失败: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -242,10 +172,9 @@ public class NewsDetailFragment extends Fragment {
     private void checkFavoriteStatus() {
         new Thread(() -> {
             int userId = SessionManager.getInstance(requireContext()).getUserId();
-            NewsHistoryDao dao = AppDatabase.getInstance(requireContext()).newsHistoryDao();
-            NewsHistory history = dao.getNewsHistory(news.getUniquekey(), userId);
+            NewsHistory history = newsHistoryDao.getNewsHistory(news.getUniquekey(), userId);
             isFavorite = history != null && history.isFavorite();
-            requireActivity().runOnUiThread(() -> updateFavoriteUI());
+            requireActivity().runOnUiThread(this::updateFavoriteUI);
         }).start();
     }
 
@@ -257,19 +186,17 @@ public class NewsDetailFragment extends Fragment {
     private void toggleFavorite() {
         new Thread(() -> {
             int userId = SessionManager.getInstance(requireContext()).getUserId();
-            NewsHistoryDao dao = AppDatabase.getInstance(requireContext()).newsHistoryDao();
-            NewsHistory history = dao.getNewsHistory(news.getUniquekey(), userId);
+            NewsHistory history = newsHistoryDao.getNewsHistory(news.getUniquekey(), userId);
             if (history == null) {
-                // 没有历史，插入并收藏
                 history = new NewsHistory(userId, news.getUniquekey(), news.getTitle(), news.getCategory(),
                         news.getThumbnail_pic_s(), news.getUrl(), news.getAuthor_name(), news.getDate());
                 history.setFavorite(true);
-                dao.insert(history);
+                newsHistoryDao.insert(history);
                 isFavorite = true;
             } else {
-                // 已有历史，切换收藏状态
                 isFavorite = !history.isFavorite();
-                dao.updateFavorite(news.getUniquekey(), userId, isFavorite);
+                history.setFavorite(isFavorite);
+                newsHistoryDao.update(history);
             }
             requireActivity().runOnUiThread(() -> {
                 updateFavoriteUI();
