@@ -11,10 +11,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.gxuwz.app.R;
 import com.gxuwz.app.View.activity.MainActivity;
 import com.gxuwz.app.adapter.NewsAdapter;
@@ -28,6 +28,7 @@ import com.gxuwz.app.network.RetrofitClient;
 import com.gxuwz.app.network.WebAPI;
 import com.gxuwz.app.utils.CategoryManager;
 import com.gxuwz.app.utils.SessionManager;
+import com.gxuwz.app.View.fragment.CategoryEditBottomSheetDialogFragment;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -52,9 +53,8 @@ public class HomeFragment extends Fragment {
     private static final int PAGE_SIZE = 15;
     private static final int IS_FILTER = 1;
 
-    private RecyclerView recyclerView;
-    private SwipeRefreshLayout swipeRefreshLayout;
-    private NewsAdapter newsAdapter;
+    private ViewPager2 viewPager;
+    private ChannelPagerAdapter pagerAdapter;
     private NewsApi newsApi;
     private NewsHistoryDao newsHistoryDao;
     private Random random = new Random();
@@ -62,6 +62,7 @@ public class HomeFragment extends Fragment {
     private List<String> tabTypes;
     private List<String> tabTitles;
     private String currentType = "top";
+    private androidx.swiperefreshlayout.widget.SwipeRefreshLayout swipeRefreshLayout;
 
     public HomeFragment() {
         super();
@@ -103,38 +104,51 @@ public class HomeFragment extends Fragment {
         tabLayout = view.findViewById(R.id.tab_layout);
         ImageButton btnEditCategory = view.findViewById(R.id.btn_edit_category);
         btnEditCategory.setOnClickListener(v -> {
-            requireActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fl_container, new CategoryEditFragment())
-                .addToBackStack(null)
-                .commit();
+            CategoryEditBottomSheetDialogFragment dialog = new CategoryEditBottomSheetDialogFragment(() -> {
+                // 保存后刷新频道
+                tabTypes = CategoryManager.getTypes(requireContext());
+                tabTitles = CategoryManager.getTitles(requireContext());
+                pagerAdapter.setTypes(tabTypes);
+                new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+                    tab.setText(tabTitles.get(position));
+                }).attach();
+            });
+            dialog.show(getChildFragmentManager(), "CategoryEditBottomSheetDialog");
         });
 
-        // 先初始化 recyclerView 和 swipeRefreshLayout
-        recyclerView = view.findViewById(R.id.recycler_view_news);
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+        viewPager = view.findViewById(R.id.view_pager);
+        pagerAdapter = new ChannelPagerAdapter(this, tabTypes);
+        viewPager.setAdapter(pagerAdapter);
 
-        // 初始化适配器
-        newsAdapter = new NewsAdapter(new ArrayList<>(), newsItem -> {
-            Log.d(TAG, "onItemClick: News item clicked: " + newsItem.getTitle());
-            if (getActivity() instanceof MainActivity) {
-                MainActivity mainActivity = (MainActivity) getActivity();
-                mainActivity.setCurrentNewsItem(newsItem);
-                // 保存新闻到历史记录（异步操作）
-                saveNewsToHistory(newsItem);
-                // 切换到详情页
-                mainActivity.replaceFragment(FragmentConstants.NewsDetailFragment, true);
+        // TabLayout与ViewPager2联动
+        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
+            tab.setText(tabTitles.get(position));
+        }).attach();
+
+        // 外层下拉刷新，刷新当前频道
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            int pos = viewPager.getCurrentItem();
+            NewsListFragment fragment = (NewsListFragment) getChildFragmentManager().findFragmentByTag("f" + pos);
+            if (fragment != null) {
+                fragment.loadNews();
+            } else {
+                // 兼容ViewPager2 fragment未attach时
+                pagerAdapter.forceRefresh(pos);
             }
+            swipeRefreshLayout.setRefreshing(false);
         });
-        recyclerView.setAdapter(newsAdapter);
-
-        // 设置下拉刷新
-        swipeRefreshLayout.setOnRefreshListener(() -> loadNews(currentType));
-
-        // 再刷新Tab
-        refreshTabs();
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // 每次返回都刷新Tab
+        if (tabLayout != null) {
+            refreshTabs();
+        }
     }
 
     private void refreshTabs() {
@@ -159,15 +173,6 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        // 每次返回都刷新Tab
-        if (tabLayout != null) {
-            refreshTabs();
-        }
-    }
-
     private void loadNews(String type) {
         Log.d(TAG, "loadNews: type=" + type);
         int page = random.nextInt(50) + 1;
@@ -184,7 +189,7 @@ public class HomeFragment extends Fragment {
                     }
                     if (newsResponse != null && newsResponse.getResult() != null && newsResponse.getResult().getData() != null) {
                         Log.d(TAG, "onSuccess: Updating adapter with " + newsResponse.getResult().getData().size() + " items");
-                        newsAdapter.updateNewsList(newsResponse.getResult().getData());
+                        // 更新适配器逻辑
                     } else {
                         Log.w(TAG, "onSuccess: Result or data is null");
                     }
@@ -209,7 +214,7 @@ public class HomeFragment extends Fragment {
         Log.d(TAG, "onDestroyView: Fragment view being destroyed");
         super.onDestroyView();
         // 清除引用
-        recyclerView = null;
+        viewPager = null;
         swipeRefreshLayout = null;
     }
 
@@ -232,5 +237,31 @@ public class HomeFragment extends Fragment {
                 newsHistoryDao.update(history);
             }
         }).start();
+    }
+}
+
+// 新增频道适配器
+class ChannelPagerAdapter extends androidx.viewpager2.adapter.FragmentStateAdapter {
+    private List<String> types;
+    public ChannelPagerAdapter(@NonNull Fragment fragment, List<String> types) {
+        super(fragment);
+        this.types = types;
+    }
+    @NonNull
+    @Override
+    public Fragment createFragment(int position) {
+        return NewsListFragment.newInstance(types.get(position));
+    }
+    @Override
+    public int getItemCount() {
+        return types.size();
+    }
+    // 可选：强制刷新某一页
+    public void forceRefresh(int position) {
+        notifyItemChanged(position);
+    }
+    public void setTypes(List<String> types) {
+        this.types = types;
+        notifyDataSetChanged();
     }
 }
