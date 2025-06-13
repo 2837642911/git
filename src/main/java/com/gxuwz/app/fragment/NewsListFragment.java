@@ -34,6 +34,7 @@ public class NewsListFragment extends Fragment {
     private NewsAdapter newsAdapter;
     private NewsApi newsApi;
     private Random random = new Random();
+    private boolean isFirstLoad = true;
 
     public static NewsListFragment newInstance(String type) {
         NewsListFragment fragment = new NewsListFragment();
@@ -66,7 +67,7 @@ public class NewsListFragment extends Fragment {
         });
         recyclerView.setAdapter(newsAdapter);
         swipeRefreshLayout.setOnRefreshListener(this::loadNews);
-        loadNews();
+        isFirstLoad = true;
         return view;
     }
 
@@ -82,7 +83,10 @@ public class NewsListFragment extends Fragment {
                 tabLayout.setVisibility(View.GONE);
             }
         }
-        loadNews();
+        if (isFirstLoad) {
+            loadNews();
+            isFirstLoad = false;
+        }
     }
 
     public void loadNews() {
