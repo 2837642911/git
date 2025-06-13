@@ -38,7 +38,7 @@ public class UpdateFragment extends Fragment {
         btnSendCode = view.findViewById(R.id.btn_send_code);
 
         btnSendCode.setOnClickListener(v -> {
-            // TODO: 发送验证码逻辑
+
             Toast.makeText(requireContext(), "验证码已发送", Toast.LENGTH_SHORT).show();
             startCountDown();
         });

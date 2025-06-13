@@ -121,7 +121,6 @@ public class NewsDetailFragment extends Fragment {
             if (tvContent != null) tvContent.setText("无法加载新闻详情：新闻数据不完整");
             return;
         }
-
         Log.d(TAG, "loadNewsDetail: API_KEY = " + API_KEY + ", uniquekey = " + news.getUniquekey());
         currentCall = newsApi.getNewsDetail(API_KEY, news.getUniquekey());
         ResponseHandler.handleResponse(requireContext(),
@@ -134,23 +133,11 @@ public class NewsDetailFragment extends Fragment {
                         Log.w(TAG, "onSuccess: getView() or getActivity() or tvTitle is null, fragment may be destroyed");
                         return;
                     }
-                    Log.d(TAG, "onSuccess: News detail loaded successfully");
                     Log.d(TAG, "onSuccess: response JSON = " + new Gson().toJson(response));
-                    Log.d(TAG, "onSuccess: error_code = " + response.getError_code());
-                    Log.d(TAG, "onSuccess: reason = " + response.getReason());
                     NewsDetailResponse.Result result = response.getResult();
                     if (result != null) {
-                        Log.d(TAG, "onSuccess: result.uniquekey = " + result.getUniquekey());
-                        Log.d(TAG, "onSuccess: result.content = " + result.getContent());
                         NewsDetailResponse.Detail detail = result.getDetail();
-                        if (detail != null) {
-                            Log.d(TAG, "onSuccess: detail.title = " + detail.getTitle());
-                            Log.d(TAG, "onSuccess: detail.date = " + detail.getDate());
-                            Log.d(TAG, "onSuccess: detail.category = " + detail.getCategory());
-                            Log.d(TAG, "onSuccess: detail.author_name = " + detail.getAuthor_name());
-                            Log.d(TAG, "onSuccess: detail.url = " + detail.getUrl());
-                            Log.d(TAG, "onSuccess: detail.thumbnail_pic_s = " + detail.getThumbnail_pic_s());
-                        }
+
                         // 更新标题、来源和时间（如果详情中有更新）
                         if (detail != null) {
                             tvTitle.setText(detail.getTitle());

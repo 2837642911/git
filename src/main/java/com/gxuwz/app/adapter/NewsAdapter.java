@@ -49,6 +49,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
             Glide.with(holder.itemView.getContext())
                     .load(newsItem.getThumbnail_pic_s())
                     .centerCrop()
+                    .override(100, 75)
                     .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.ALL)
                     .skipMemoryCache(false)
                     .into(holder.imageView);

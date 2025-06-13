@@ -57,6 +57,7 @@ public class HomeFragment extends Fragment {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate: Fragment created");
         if (getArguments() != null) {
@@ -74,6 +75,9 @@ public class HomeFragment extends Fragment {
 
         tabLayout = view.findViewById(R.id.tab_layout);
         viewPager = view.findViewById(R.id.view_pager);
+        //只加载身边预加载两个页面
+        viewPager.setOffscreenPageLimit(1);
+
         tabTypes = CategoryManager.getTypes(requireContext());
         tabTitles = CategoryManager.getTitles(requireContext());
         pagerAdapter = new ChannelPagerAdapter(this, tabTypes);
