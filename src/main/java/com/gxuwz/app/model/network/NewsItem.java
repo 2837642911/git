@@ -10,7 +10,7 @@ public class NewsItem implements Serializable { // 实现Serializable方便传�
     private String author_name;
     private String url;
     private String thumbnail_pic_s;
-    // 如果有thumbnail_pic_s02, thumbnail_pic_s03也可以加上
+
 
     public String getUniquekey() {
         return uniquekey;

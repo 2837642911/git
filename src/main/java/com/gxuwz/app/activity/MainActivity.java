@@ -157,6 +157,8 @@ public class MainActivity extends AppCompatActivity {
         return currentNewsItem;
     }
 
+
+
     private int getFragmentType(Fragment fragment) {
         if (fragment instanceof HomeFragment) {
             return FragmentConstants.HomeFragment;

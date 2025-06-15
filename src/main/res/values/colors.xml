@@ -10,4 +10,19 @@
     <color name="black">#000000</color>
     <color name="light_gray">#F5F5F5</color>  <!-- 浅灰色 -->
     <color name="gray_300">#E0E0E0</color>    <!-- 边框颜色 -->
+    <color name="icon_300">#4285F4</color>
+    <color name="navy_dark">#1E293B</color>
+    <color name="navy_deep_blue">#165DFF</color>
+    <color name="primary">#165DFF</color>
+
+
+
+    <!-- Chip颜色 -->
+    <color name="chip_text_color_selected">#165DFF</color>
+    <color name="chip_text_color_unselected">#000000</color>
+    <color name="chip_background_selected">#E8F3FF</color>
+    <color name="chip_background_unselected">#F5F7FA</color>
+    <color name="chip_stroke_selected">#165DFF</color>
+    <color name="chip_stroke_unselected">#F5F7FA</color>
+    <color name="primary_ripple">#4080FF</color>
 </resources>

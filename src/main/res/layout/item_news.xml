@@ -2,68 +2,100 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/news_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="2dp">
+    android:visibility="visible"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="3dp"
+    app:cardPreventCornerOverlap="false"
+    app:cardUseCompatPadding="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="12dp">
+        android:padding="16dp"
+        android:gravity="center_vertical">
 
-        <LinearLayout
+        <ImageView
+            android:id="@+id/iv_news_image"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
             android:layout_weight="1"
+            android:adjustViewBounds="true"
+            android:maxHeight="200dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_news_placeholder"
+            android:visibility="visible"/>
+
+        <LinearLayout
+            android:id="@+id/text_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
             android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/news_category"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_category_tag"
+                android:text="国际"
+                 android:textColor="@color/black"
+                android:textSize="12sp"
+                 android:layout_marginBottom="6dp" />
 
             <TextView
                 android:id="@+id/tv_news_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
                 android:ellipsize="end"
-                android:maxLines="2"
-                android:textColor="@android:color/black"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                tools:text="新闻标题" />
+                android:maxLines="3"
+                android:text="韩国开始印制总统选举选票，候选人差距缩小。韩国中央选举管理委员会今日开始印制总统选举选票，预计将印制超过4000万张。最新民调显示，两位主要候选人的支持率差距已缩小至3个百分点"
+                android:textColor="@color/black"
+                android:textSize="15sp"
+                android:textStyle="normal" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/iv_source_icon"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/circle"
+                    android:contentDescription="来源图标"
+                    android:src="@drawable/ic_source" />
 
                 <TextView
                     android:id="@+id/tv_news_source"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/darker_gray"
-                    android:textSize="12sp"
-                    tools:text="来源" />
+                    android:text="环球时报"
+                    android:textColor="@color/black"
+                    android:textSize="12sp" />
 
                 <TextView
                     android:id="@+id/tv_news_time"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:textColor="@android:color/darker_gray"
-                    android:textSize="12sp"
-                    tools:text="时间" />
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:text="昨天 21:15"
+                    android:textColor="@color/black"
+                    android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
-
-        <ImageView
-            android:id="@+id/iv_news_image"
-            android:layout_width="100dp"
-            android:layout_height="75dp"
-            android:layout_marginStart="12dp"
-            android:scaleType="centerCrop"
-            tools:src="@tools:sample/backgrounds/scenic" />
-
     </LinearLayout>
-
-</com.google.android.material.card.MaterialCardView> 
+</com.google.android.material.card.MaterialCardView>
