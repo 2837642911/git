@@ -4,11 +4,16 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
 import com.gxuwz.app.R;
 import com.gxuwz.app.activity.MainActivity;
+import com.gxuwz.app.dao.UserDao;
+import com.gxuwz.app.db.AppDatabase;
+import com.gxuwz.app.model.pojo.User;
+import com.gxuwz.app.utils.SessionManager;
 
 
 /**
@@ -50,6 +55,9 @@ public class MeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_me, container, false);
+        TextView usernameText = view.findViewById(R.id.username);
+        String userName = getCurrentUser().getUserName();
+        usernameText.setText(userName);
         setupVersionClick(view);
         setupLogoutClick(view);
         setupRecordClick(view);
@@ -96,5 +104,9 @@ public class MeFragment extends Fragment {
             });
         }
     }
-
+    private User getCurrentUser() {
+        int userId = SessionManager.getInstance(requireContext()).getUserId();
+        UserDao userDao = AppDatabase.getInstance(requireContext()).userDao();
+        return userDao.getUserById(userId);
+    }
 }

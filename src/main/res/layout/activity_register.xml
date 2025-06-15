@@ -165,7 +165,7 @@
         android:clickable="true"
         android:focusable="true"
         android:background="?attr/selectableItemBackground"
-        android:padding="8dp">
+        android:padding="16dp">
 
         <TextView
             android:id="@+id/tv_to_login"
@@ -173,8 +173,7 @@
             android:layout_height="wrap_content"
             android:text="转到登录"
             android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="#178CFF"/>
+            android:textStyle="bold" />
 
         <ImageView
             android:id="@+id/iv_to_login"

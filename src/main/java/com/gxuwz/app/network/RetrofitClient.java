@@ -1,7 +1,11 @@
 package com.gxuwz.app.network;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.gxuwz.app.api.NewsApi;
 import com.gxuwz.app.api.UpdateApi;
+import com.gxuwz.app.model.Serialization.NewsDetailDeserializer;
+import com.gxuwz.app.model.network.NewsDetailResponse;
 
 import java.util.concurrent.TimeUnit;
 
@@ -40,6 +44,16 @@ public class RetrofitClient {
                         .baseUrl(NEWS_URL)
                         .client(getOkHttpClient()) // 使用共享的 OkHttp 客户端
                         .addConverterFactory(GsonConverterFactory.create())
+                        .build();
+                //注册gson序列化器的，解析所有图片
+                Gson gson = new GsonBuilder()
+                        .registerTypeAdapter(NewsDetailResponse.class, new NewsDetailDeserializer())
+                        .create();
+
+                retrofit = new Retrofit.Builder()
+                        .baseUrl(NEWS_URL)
+                        .client(getOkHttpClient())
+                        .addConverterFactory(GsonConverterFactory.create(gson)) // 使用自定义Gson
                         .build();
             }
             newsApi = retrofit.create(NewsApi.class);

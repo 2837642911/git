@@ -134,8 +134,9 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_download_apk"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_marginTop="32dp"
+            app:cornerRadius="8dp"
             android:text="测试下载APK"
             style="@style/Widget.Material3.Button"/>
         <!-- 下载进度条 -->

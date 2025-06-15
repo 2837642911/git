@@ -62,4 +62,5 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.13.2'
     implementation 'com.github.bumptech.glide:okhttp3-integration:4.13.2'
 
+    implementation 'org.jsoup:jsoup:1.15.3'
 }

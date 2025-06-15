@@ -2,6 +2,10 @@ package com.gxuwz.app.model.network;
 
 import com.gxuwz.app.model.IApiResponse;
 
+import java.util.ArrayList;
+import java.util.List;
+
+//新闻详情返回的数据
 public class NewsDetailResponse implements IApiResponse {
     private String reason;
     private int error_code;
@@ -49,6 +53,8 @@ public class NewsDetailResponse implements IApiResponse {
         private String content;
         private Detail detail;
 
+
+
         public String getUniquekey() {
             return uniquekey;
         }
@@ -65,13 +71,74 @@ public class NewsDetailResponse implements IApiResponse {
             this.content = content;
         }
 
+
         public Detail getDetail() {
             return detail;
         }
 
+
         public void setDetail(Detail detail) {
             this.detail = detail;
         }
+        public List<String> getContentImages() {
+            List<String> images = new ArrayList<>();
+            if (content == null || content.isEmpty()) {
+                return images;
+            }
+
+            String imgTagStart = "<img";
+            String srcAttribute = "src=\"";
+            String srcAttributeAlt = "src='";
+
+            int currentIndex = 0;
+
+            // 循环查找所有<img>标签
+            while (currentIndex < content.length()) {
+                int imgStartIndex = content.indexOf(imgTagStart, currentIndex);
+                if (imgStartIndex == -1) {
+                    break; // 没有更多<img>标签
+                }
+
+                // 查找src属性（双引号版本）
+                int srcStartIndex = content.indexOf(srcAttribute, imgStartIndex);
+                int srcAltStartIndex = content.indexOf(srcAttributeAlt, imgStartIndex);
+
+                // 确定使用哪个src属性
+                int srcActualStartIndex = -1;
+                String quoteChar = "";
+
+                if (srcStartIndex != -1 && (srcAltStartIndex == -1 || srcStartIndex < srcAltStartIndex)) {
+                    srcActualStartIndex = srcStartIndex + srcAttribute.length();
+                    quoteChar = "\"";
+                } else if (srcAltStartIndex != -1) {
+                    srcActualStartIndex = srcAltStartIndex + srcAttributeAlt.length();
+                    quoteChar = "'";
+                }
+
+                if (srcActualStartIndex != -1) {
+                    // 查找对应的结束引号
+                    int srcEndIndex = content.indexOf(quoteChar, srcActualStartIndex);
+                    if (srcEndIndex != -1) {
+                        String srcUrl = content.substring(srcActualStartIndex, srcEndIndex);
+                        if (!srcUrl.isEmpty()) {
+                            // 处理相对URL
+                            if (srcUrl.startsWith("//")) {
+                                srcUrl = "https:" + srcUrl;
+                            } else if (srcUrl.startsWith("/")) {
+                                srcUrl = "https://dfzximg01.dftoutiao.com" + srcUrl; // 根据实际域名调整
+                            }
+                            images.add(srcUrl);
+                        }
+                    }
+                }
+
+                // 移动到当前<img>标签之后，继续查找
+                currentIndex = imgStartIndex + imgTagStart.length();
+            }
+
+            return images;
+        }
+
     }
 
     public static class Detail {
@@ -81,8 +148,16 @@ public class NewsDetailResponse implements IApiResponse {
         private String author_name;
         private String url;
         private String thumbnail_pic_s;
-        private String thumbnail_pic_s02;
-        private String thumbnail_pic_s03;
+        private List<String> allImages;
+
+
+        public List<String> getAllImages() {
+            return allImages;
+        }
+
+        public void setAllImages(List<String> allImages) {
+            this.allImages = allImages;
+        }
 
         public String getTitle() {
             return title;
@@ -132,20 +207,8 @@ public class NewsDetailResponse implements IApiResponse {
             this.thumbnail_pic_s = thumbnail_pic_s;
         }
 
-        public String getThumbnail_pic_s02() {
-            return thumbnail_pic_s02;
-        }
-
-        public void setThumbnail_pic_s02(String thumbnail_pic_s02) {
-            this.thumbnail_pic_s02 = thumbnail_pic_s02;
-        }
-
-        public String getThumbnail_pic_s03() {
-            return thumbnail_pic_s03;
-        }
-
-        public void setThumbnail_pic_s03(String thumbnail_pic_s03) {
-            this.thumbnail_pic_s03 = thumbnail_pic_s03;
-        }
     }
+
+
+
 }

@@ -20,7 +20,7 @@ import com.gxuwz.app.fragment.NewsProfileFragment;
 import com.gxuwz.app.fragment.SettingFragment;
 import com.gxuwz.app.fragment.UpdateFragment;
 import com.gxuwz.app.fragment.VersionFragment;
-import com.gxuwz.app.model.network.NewsItem;
+import com.gxuwz.app.model.pojo.NewsItem;
 
 public class MainActivity extends AppCompatActivity {
 

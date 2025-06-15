@@ -1,9 +1,11 @@
 package com.gxuwz.app.model.network;
 
 import com.gxuwz.app.model.IApiResponse;
+import com.gxuwz.app.model.pojo.NewsItem;
 
 import java.util.List;
 
+//新闻列表接口返回的数据结构
 public class NewsResponse implements IApiResponse {
     private String reason;  // 聚合数据API的reason字段
     private int error_code; // 聚合数据API的error_code字段
@@ -48,7 +50,7 @@ public class NewsResponse implements IApiResponse {
 
     public static class Result {
         private String stat;
-        private List<com.gxuwz.app.model.network.NewsItem> data;
+        private List<NewsItem> data;
         private String page;
         private String pageSize;
 
@@ -60,11 +62,11 @@ public class NewsResponse implements IApiResponse {
             this.stat = stat;
         }
 
-        public List<com.gxuwz.app.model.network.NewsItem> getData() {
+        public List<NewsItem> getData() {
             return data;
         }
 
-        public void setData(List<com.gxuwz.app.model.network.NewsItem> data) {
+        public void setData(List<NewsItem> data) {
             this.data = data;
         }
 

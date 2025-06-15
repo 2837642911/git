@@ -4,6 +4,8 @@ import static com.gxuwz.app.network.WebAPI.API_KEY;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,15 +19,15 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
-import com.google.gson.Gson;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.gxuwz.app.R;
 import com.gxuwz.app.activity.MainActivity;
 import com.gxuwz.app.api.NewsApi;
 import com.gxuwz.app.dao.NewsHistoryDao;
 import com.gxuwz.app.db.AppDatabase;
 import com.gxuwz.app.model.network.NewsDetailResponse;
-import com.gxuwz.app.model.network.NewsItem;
 import com.gxuwz.app.model.pojo.NewsHistory;
+import com.gxuwz.app.model.pojo.NewsItem;
 import com.gxuwz.app.network.ResponseHandler;
 import com.gxuwz.app.network.RetrofitClient;
 import com.gxuwz.app.utils.SessionManager;
@@ -116,77 +118,116 @@ public class NewsDetailFragment extends Fragment {
     }
 
     private void loadNewsDetail() {
+        // 防御式编程：验证必要参数
         if (news == null || news.getUniquekey() == null) {
-            Log.e(TAG, "loadNewsDetail: News or uniquekey is null");
-            if (tvContent != null) tvContent.setText("无法加载新闻详情：新闻数据不完整");
+            Log.e(TAG, "News data is incomplete, cannot load detail");
+            setContentText("无法加载新闻详情：新闻数据不完整");
             return;
         }
-        Log.d(TAG, "loadNewsDetail: API_KEY = " + API_KEY + ", uniquekey = " + news.getUniquekey());
-        currentCall = newsApi.getNewsDetail(API_KEY, news.getUniquekey());
-        ResponseHandler.handleResponse(requireContext(),
-            currentCall,
-            new ResponseHandler.ResponseCallback<NewsDetailResponse>() {
-                @Override
-                public void onSuccess(NewsDetailResponse response) {
-                    // 防止Fragment视图已销毁
-                    if (getView() == null || getActivity() == null || tvTitle == null) {
-                        Log.w(TAG, "onSuccess: getView() or getActivity() or tvTitle is null, fragment may be destroyed");
-                        return;
-                    }
-                    Log.d(TAG, "onSuccess: response JSON = " + new Gson().toJson(response));
-                    NewsDetailResponse.Result result = response.getResult();
-                    if (result != null) {
-                        NewsDetailResponse.Detail detail = result.getDetail();
 
-                        // 更新标题、来源和时间（如果详情中有更新）
-                        if (detail != null) {
-                            tvTitle.setText(detail.getTitle());
-                            tvSource.setText(detail.getAuthor_name());
-                            tvTime.setText(detail.getDate());
-                            // 如果有新的图片，更新图片
-                            if (detail.getThumbnail_pic_s() != null && !detail.getThumbnail_pic_s().isEmpty()) {
-                                Glide.with(requireContext())
-                                        .load(detail.getThumbnail_pic_s())
-                                        .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.ALL)
-                                        .skipMemoryCache(false)
-                                        .into(ivNews);
-                            }
+        Log.d(TAG, "Loading news detail: " + news.getUniquekey());
+        currentCall = newsApi.getNewsDetail(API_KEY, news.getUniquekey());
+
+        ResponseHandler.handleResponse(requireContext(), currentCall,
+                new ResponseHandler.ResponseCallback<NewsDetailResponse>() {
+                    @Override
+                    public void onSuccess(NewsDetailResponse response) {
+                        if (!isViewValid()) {
+                            Log.w(TAG, "Fragment view is destroyed, skipping update");
+                            return;
                         }
-                        // 显示内容
-                        String content = result.getContent();
-                        if (content != null && !content.isEmpty()) {
-                            tvContent.setText(android.text.Html.fromHtml(content, android.text.Html.FROM_HTML_MODE_LEGACY));
-                        } else {
-                            tvContent.setText("暂无详细内容");
+
+                        NewsDetailResponse.Result result = response.getResult();
+                        if (result == null) {
+                            Log.w(TAG, "Empty result received from API");
+                            setContentText("暂无详细内容");
+                            return;
                         }
-                    } else {
-                        Log.w(TAG, "onSuccess: Result is null");
-                        tvContent.setText("暂无详细内容");
+
+                        updateNewsInfo(result.getDetail());
+                        displayContent(result.getContent());
+                    }
+
+                    @Override
+                    public void onError(String errorMsg) {
+                        if (!isActivityValid()) {
+                            Log.w(TAG, "Activity is not available, skipping error handling");
+                            return;
+                        }
+
+                        // 智能重试逻辑：仅对网络错误进行一次重试
+                        if (errorMsg.contains("网络错误") && !hasRetried) {
+                            hasRetried = true;
+                            Log.d(TAG, "Network error detected, retrying request");
+                            loadNewsDetail();
+                            return;
+                        }
+
+                        String userMessage = formatErrorMessage(errorMsg);
+                        setContentText(userMessage);
+                        showToast(userMessage);
                     }
                 }
-                @Override
-                public void onError(String errorMsg) {
-                    Log.e(TAG, "onError: " + errorMsg);
-                    if (getActivity() == null || tvContent == null) {
-                        Log.w(TAG, "onError: Activity or tvContent is null");
-                        return;
-                    }
-                    if (errorMsg.contains("网络错误") && !hasRetried) {
-                        hasRetried = true;
-                        Log.d(TAG, "onError: Retrying once...");
-                        loadNewsDetail();
-                        return;
-                    }
-                    String displayMsg = "加载详细内容失败";
-                    if (errorMsg.contains("未知错误")) {
-                        displayMsg += "：服务器返回未知错误";
-                    } else {
-                        displayMsg += "：" + errorMsg;
-                    }
-                    tvContent.setText(displayMsg);
-                    Toast.makeText(getContext(), displayMsg, Toast.LENGTH_SHORT).show();
-                }
-            });
+        );
+    }
+
+    // 视图有效性检查（防止Fragment已销毁）
+    private boolean isViewValid() {
+        return getView() != null && getActivity() != null && tvTitle != null;
+    }
+
+    // Activity有效性检查
+    private boolean isActivityValid() {
+        return getActivity() != null && tvContent != null;
+    }
+
+    // 更新新闻基本信息
+    private void updateNewsInfo(NewsDetailResponse.Detail detail) {
+        if (detail == null) return;
+
+        tvTitle.setText(detail.getTitle());
+        tvSource.setText(detail.getAuthor_name());
+        tvTime.setText(detail.getDate());
+
+        if (!TextUtils.isEmpty(detail.getThumbnail_pic_s())) {
+            Glide.with(requireContext())
+                    .load(detail.getThumbnail_pic_s())
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .skipMemoryCache(false)
+                    .into(ivNews);
+        }
+    }
+
+    // 显示新闻内容
+    private void displayContent(String content) {
+        if (!TextUtils.isEmpty(content)) {
+            tvContent.setText(Html.fromHtml(content, Html.FROM_HTML_MODE_LEGACY));
+        } else {
+            tvContent.setText("暂无详细内容");
+        }
+    }
+
+    // 设置内容文本（带空安全）
+    private void setContentText(String text) {
+        if (tvContent != null) {
+            tvContent.setText(text);
+        }
+    }
+
+    // 显示Toast消息
+    private void showToast(String message) {
+        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+    // 格式化错误消息
+    private String formatErrorMessage(String errorMsg) {
+        String displayMsg = "加载详细内容失败";
+        if (errorMsg.contains("未知错误")) {
+            displayMsg += "：服务器返回未知错误";
+        } else {
+            displayMsg += "：" + errorMsg;
+        }
+        return displayMsg;
     }
 
     @Override

@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.gxuwz.app.R;
-import com.gxuwz.app.model.network.NewsItem;
+import com.gxuwz.app.model.pojo.NewsItem;
 import com.gxuwz.app.model.pojo.NewsHistory;
 
 import java.util.List;
