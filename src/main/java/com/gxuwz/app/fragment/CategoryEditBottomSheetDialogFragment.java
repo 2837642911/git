@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.gxuwz.app.R;
+import com.gxuwz.app.adapter.ChannelAdapter;
 import com.gxuwz.app.utils.CategoryManager;
 
 import java.util.ArrayList;
@@ -31,9 +32,13 @@ public class CategoryEditBottomSheetDialogFragment extends BottomSheetDialogFrag
     private ChannelAdapter myAdapter, moreAdapter;
     private List<String> myTypes, myTitles, moreTypes, moreTitles;
 
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+
         View view = inflater.inflate(R.layout.dialog_category_edit_bottom_sheet, container, false);
         RecyclerView rvMy = view.findViewById(R.id.rv_my_channels);
         RecyclerView rvMore = view.findViewById(R.id.rv_more_channels);
@@ -115,39 +120,4 @@ public class CategoryEditBottomSheetDialogFragment extends BottomSheetDialogFrag
         return view;
     }
 
-    // 频道适配器
-    private static class ChannelAdapter extends RecyclerView.Adapter<ChannelAdapter.ViewHolder> {
-        private List<String> data;
-        private boolean isMy;
-        private OnItemClickListener listener;
-        public ChannelAdapter(List<String> data, boolean isMy) {
-            this.data = data;
-            this.isMy = isMy;
-        }
-        @NonNull
-        @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_channel_chip, parent, false);
-            return new ViewHolder(view);
-        }
-        @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            holder.chip.setText(data.get(position));
-            holder.chip.setChecked(isMy);
-            holder.chip.setOnClickListener(v -> {
-                if (listener != null) listener.onItemClick(position);
-            });
-        }
-        @Override
-        public int getItemCount() { return data.size(); }
-        public void setOnItemClickListener(OnItemClickListener l) { this.listener = l; }
-        static class ViewHolder extends RecyclerView.ViewHolder {
-            com.google.android.material.chip.Chip chip;
-            ViewHolder(View itemView) {
-                super(itemView);
-                chip = itemView.findViewById(R.id.chip_channel);
-            }
-        }
-        interface OnItemClickListener { void onItemClick(int pos); }
-    }
 } 

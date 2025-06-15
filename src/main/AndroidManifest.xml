@@ -48,8 +48,7 @@
 <!--                <category android:name="android.intent.category.LAUNCHER" />-->
 <!--            </intent-filter>-->
         </activity>
-        <activity android:name="com.gxuwz.app.activity.ApkInstallActivity"
-            android:exported="false"/>
+
         <service
             android:name=".service.DownloadApkService"
             android:exported="false"

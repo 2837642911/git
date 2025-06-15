@@ -2,13 +2,14 @@ package com.gxuwz.app.adapter;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.gxuwz.app.fragment.NewsListFragment;
 
 import java.util.List;
 
 // 新增频道适配器
-public class ChannelPagerAdapter extends androidx.viewpager2.adapter.FragmentStateAdapter {
+public class ChannelPagerAdapter extends FragmentStateAdapter {
     private List<String> types;
     public ChannelPagerAdapter(@NonNull Fragment fragment, List<String> types) {
         super(fragment);
